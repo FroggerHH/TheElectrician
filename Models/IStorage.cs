@@ -15,9 +15,14 @@ public interface IStorage : IElectricObject
     void Clear();
     bool CanAdd(float amount);
     bool CanRemove(string key, float amount);
+    float FreeSpace();
 
     float Count(string key);
     bool TransferTo(IStorage otherStorage, string key, float amount);
     bool GetFrom(IStorage otherStorage, string key, float amount);
     bool GetFrom(ZDO container, string key, int amount);
+
+    HashSet<IWire> GetConnectedWires();
+    void AddConnectionWire(IWire wire);
+    void RemoveConnectionWire(IWire wire);
 }

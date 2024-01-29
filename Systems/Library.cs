@@ -1,5 +1,6 @@
 ﻿using TheElectrician.Models;
 using TheElectrician.Models.Settings;
+using TheElectrician.Objects;
 
 namespace TheElectrician.Systems;
 
@@ -40,10 +41,19 @@ public static class Library
 
     public static List<IElectricObject> GetAllObjects() { return AllObjects; }
 
+    public static List<T> GetAllObjects<T>() where T : IElectricObject { return AllObjects.OfType<T>().ToList(); }
+
 
     public static void AddObject(IElectricObject obj)
     {
-        if (!AllObjects.Contains(obj)) AllObjects.Add(obj);
+        if (AllObjects.Contains(obj)) return;
+        AllObjects.Add(obj);
+        if (obj is IWire) ReorderWires();
+    }
+
+    private static void ReorderWires()
+    {
+        
     }
 
     public static void RemoveObject(IElectricObject obj)
@@ -54,22 +64,22 @@ public static class Library
 
     public static void SpawnObject(ZDO zdo)
     {
-        if (!CreateObject(zdo, out var obj)) return;
+        if (!CreateObject(zdo, out var obj, out var settings)) return;
+        obj.InitSettings(settings);
         AddObject(obj);
     }
 
-    private static bool CreateObject(ZDO zdo, out IElectricObject obj)
+    private static bool CreateObject(ZDO zdo, out IElectricObject obj, out ElectricObjectSettings settings)
     {
+        settings = null;
         obj = null;
-        if (!TryGetSettings(zdo.GetPrefab(), out var settings)) return false;
+        if (!TryGetSettings(zdo.GetPrefab(), out settings)) return false;
         obj = Activator.CreateInstance(settings.type, zdo) as IElectricObject;
         if (obj is null)
         {
             DebugError($"Failed to create object: {zdo.GetPrefab()}, type: {settings?.type?.ToString() ?? "null"}");
             return false;
         }
-
-        obj.InitSettings(settings);
 
         Debug($"Object created: {obj}");
         return true;
@@ -91,4 +101,12 @@ public static class Library
     public static IElectricObject GetObject(ZDO zdo) { return AllObjects.FirstOrDefault(x => x.GetZDO() == zdo); }
 
     public static void Clear() { AllObjects.Clear(); }
+
+    public static IElectricObject GetObject(Guid guid) => AllObjects.FirstOrDefault(x => x.GetId() == guid);
+
+    public static void TryGiveId(IElectricObject electricObject)
+    {
+        if (electricObject.GetId() == Guid.Empty)
+            electricObject.GetZDO().Set(Consts.electricObjectIdKey, Guid.NewGuid().ToString());
+    }
 }

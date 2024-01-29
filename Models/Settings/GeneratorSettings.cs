@@ -8,8 +8,8 @@ public class GeneratorSettings : StorageSettings
     public readonly float powerPerTick;
 
     public GeneratorSettings(Type type, int capacity,
-        float powerPerTick, string fuelItem, float fuelPerTick, int maxFuel)
-        : base(type, capacity)
+        float powerPerTick, string fuelItem, float fuelPerTick, int maxFuel, bool storeOnlyPower = false)
+        : base(type, capacity, storeOnlyPower)
     {
         this.powerPerTick = powerPerTick;
         this.fuelItem = fuelItem;

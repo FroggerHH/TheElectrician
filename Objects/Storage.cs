@@ -8,11 +8,14 @@ public class Storage : IStorage
 {
     private readonly ZDO zdo;
     private Dictionary<string, float> cashedStored;
+    private HashSet<IWire> cashedConnectedWires = new();
 
     public Storage(ZDO ZDO)
     {
         zdo = ZDO;
-        cashedStored = CurrentStored();
+        Library.TryGiveId(this);
+        CurrentStored();
+        GetConnectedWires();
     }
 
     public virtual void Update() { }
@@ -28,10 +31,16 @@ public class Storage : IStorage
         SetCapacity(storageSettings.capacity);
     }
 
+    public Guid GetId() { return Guid.Parse(zdo.GetString(Consts.electricObjectIdKey, Guid.Empty.ToString())); }
+
     public Dictionary<string, float> CurrentStored()
     {
         var savedString = GetZDO().GetString(Consts.storageKey, "-1");
-        if (savedString == "-1") return new();
+        if (savedString == "-1")
+        {
+            cashedStored = new();
+            return cashedStored;
+        }
 
         cashedStored = savedString
             .Split(';')
@@ -157,6 +166,8 @@ public class Storage : IStorage
         return false;
     }
 
+    public float FreeSpace() => GetCapacity() - cashedStored.Sum(x => x.Value);
+
     public float Count(string key) { return cashedStored.TryGetValue(key, out var current) ? current : 0; }
 
     public bool TransferTo(IStorage otherStorage, string key, float amount)
@@ -183,6 +194,30 @@ public class Storage : IStorage
 
     public bool GetFrom(ZDO container, string key, int amount) { throw new NotImplementedException(); }
 
+    public HashSet<IWire> GetConnectedWires()
+    {
+        cashedConnectedWires = Library.GetAllObjects<IWire>().Where(x => x.GetConnections().Contains(this)).ToHashSet();
+        return cashedConnectedWires;
+    }
+
+    public void AddConnectionWire(IWire wire)
+    {
+        if (cashedConnectedWires.Contains(wire)) return;
+        cashedConnectedWires.Add(wire);
+        wire.AddConnection(this);
+        UpdateConnections();
+    }
+
+    private void UpdateConnections() => cashedConnectedWires = cashedConnectedWires.Where(x => x is not null).ToHashSet();
+
+    public void RemoveConnectionWire(IWire wire)
+    {
+        if (!wire.GetConnections().Contains(this)) return;
+        cashedConnectedWires.Remove(wire);
+        wire.RemoveConnection(this);
+        UpdateConnections();
+    }
+
     public ZDO GetZDO() { return zdo; }
 
     private void UpdateCurrentStored()
@@ -190,4 +225,6 @@ public class Storage : IStorage
         var join = string.Join(";", cashedStored.Select(x => $"{x.Key}:{x.Value}"));
         GetZDO().Set(Consts.storageKey, join);
     }
+
+    public override string ToString() { return $"Storage {GetId()} stored: {cashedStored.GetString()}"; }
 }

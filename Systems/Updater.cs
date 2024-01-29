@@ -16,6 +16,7 @@ public static class Updater
 
     private static void Update()
     {
+        PowerFlow.Update();
         var enumerable = Library.GetAllObjects();
         foreach (var obj in enumerable) obj.Update();
     }

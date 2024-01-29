@@ -93,13 +93,19 @@
         <Compile Include="Models\IElectricObject.cs" />
         <Compile Include="Models\IGenerator.cs" />
         <Compile Include="Models\IStorage.cs" />
+        <Compile Include="Models\IWire.cs" />
         <Compile Include="Models\Settings\ElectricObjectSettings.cs" />
         <Compile Include="Models\Settings\GeneratorSettings.cs" />
         <Compile Include="Models\Settings\StorageSettings.cs" />
+        <Compile Include="Models\Settings\WireSettings.cs" />
         <Compile Include="Objects\Generator.cs" />
         <Compile Include="Objects\Mono\MonoGenerator.cs" />
         <Compile Include="Objects\Mono\MonoStorage.cs" />
+        <Compile Include="Objects\Mono\Wire\Cable.cs" />
+        <Compile Include="Objects\Mono\Wire\MonoWire.cs" />
+        <Compile Include="Objects\Mono\Wire\WireState.cs" />
         <Compile Include="Objects\Storage.cs" />
+        <Compile Include="Objects\Wire.cs" />
         <Compile Include="Patch\FinishPieces.cs" />
         <Compile Include="Patch\GameStartEnd.cs" />
         <Compile Include="Patch\HandleObjectsCreation.cs" />
@@ -107,6 +113,7 @@
         <Compile Include="Plugin.cs"/>
         <Compile Include="Properties\AssemblyInfo.cs"/>
         <Compile Include="Systems\Library.cs" />
+        <Compile Include="Systems\PowerFlow.cs" />
         <Compile Include="Systems\Updater.cs" />
     </ItemGroup>
     <ItemGroup>

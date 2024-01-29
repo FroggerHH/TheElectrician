@@ -8,12 +8,15 @@ public class MonoGenerator : MonoBehaviour, Hoverable, Interactable
 
     public IGenerator generator { get; private set; }
     public ZNetView netView { get; private set; }
+    public Piece piece { get; private set; }
     private float m_lastUseTime;
 
 
-    private void Awake()
+    void Awake()
     {
         netView = GetComponent<ZNetView>();
+        if (!netView.IsValid()) return;
+        piece = GetComponent<Piece>();
         generator = Library.GetObject(netView.GetZDO()) as IGenerator;
     }
 
@@ -21,15 +24,17 @@ public class MonoGenerator : MonoBehaviour, Hoverable, Interactable
     {
         if (generator == null) return string.Empty;
         var sb = new StringBuilder();
-        sb.AppendLine($"${ModName}_generator".Localize());
-        sb.AppendLine();
-        sb.AppendLine($"${ModName}_storage_capacity".Localize() + ": " + generator.GetCapacity());
-
-        //Fuel item
         var fuelItemPrefabName = generator.GetFuelItem();
         var fuelItemName = string.Empty;
         var fuelItemPrefab = ZNetScene.instance.GetPrefab(fuelItemPrefabName)?.GetComponent<ItemDrop>();
         if (fuelItemPrefab != null) fuelItemName = fuelItemPrefab.m_itemData.m_shared.m_name;
+
+        sb.AppendLine(piece.m_name.Localize());
+        sb.AppendLine();
+        sb.AppendLine($"[<color=yellow><b>$KEY_Use</b></color>] $piece_smelter_add {fuelItemName}".Localize());
+        sb.AppendLine($"${ModName}_storage_capacity".Localize() + ": " + generator.GetCapacity());
+
+        //Fuel item
         if (fuelItemName.IsGood())
             sb.AppendLine(string.Format($"${ModName}_generator_uses_fuel".Localize(), fuelItemName.Localize()));
         sb.AppendLine(string.Format($"${ModName}_generator_power_per_tick".Localize(), generator.GetPowerPerTick()));
@@ -45,9 +50,10 @@ public class MonoGenerator : MonoBehaviour, Hoverable, Interactable
 
     public bool Interact(Humanoid user, bool hold, bool alt)
     {
+        if (MonoStorage.ConnectDisconnectWire(hold, alt, generator)) return true;
         if (hold && (HoldRepeatInterval <= 0.0 || Time.time - m_lastUseTime < HoldRepeatInterval))
             return false;
-        this.m_lastUseTime = Time.time; 
+        this.m_lastUseTime = Time.time;
 
         var fuelItemPrefabName = generator.GetFuelItem();
         var fuelItem = ZNetScene.instance.GetPrefab(fuelItemPrefabName)?.GetComponent<ItemDrop>()?.m_itemData
