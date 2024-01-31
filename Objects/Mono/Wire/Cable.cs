@@ -1,3 +1,5 @@
+using TheElectrician.Models;
+
 namespace TheElectrician.Objects.Mono.Wire;
 
 public class Cable : MonoBehaviour
@@ -61,6 +63,30 @@ public class Cable : MonoBehaviour
             betweenVector,
             new Vector3(pos2.x, pos2.y, pos2.z)
         );
+    }
+
+    public void SetConnection(IWireConnectable first, IWireConnectable second)
+    {
+        var firstPos = first.GetZDO().GetPosition();
+        var secondPos = second.GetZDO().GetPosition();
+
+        var firstMono = ElectricMono.GetAll().Find(x => x.GetId() == first.GetId());
+        var secondMono = ElectricMono.GetAll().Find(x => x.GetId() == second.GetId());
+
+        if (firstMono != null)
+        {
+            var firstAttach = firstMono.transform.Find("CablesAttach");
+            if (firstAttach != null) firstPos = firstAttach.position;
+        }
+
+        if (secondMono != null)
+        {
+            var secondAttach = secondMono.transform.Find("CablesAttach");
+            if (secondAttach != null) secondPos = secondAttach.position;
+        }
+
+
+        SetConnection(firstPos, secondPos);
     }
 
     private void SetPositions(params Vector3[] positions)

@@ -5,14 +5,12 @@ namespace TheElectrician.Objects.Mono;
 
 public class MonoStorage : ElectricMono, Interactable
 {
-    public static List<MonoStorage> AllStorages = new();
     public IStorage storage { get; private set; }
 
     public override void OnDestroy()
     {
         if (!netView || !netView.IsValid() || !storage.IsValid()) return;
         DropAll();
-        AllStorages.Remove(this);
     }
 
     public virtual bool Interact(Humanoid user, bool hold, bool alt)
@@ -22,11 +20,13 @@ public class MonoStorage : ElectricMono, Interactable
 
     public virtual bool UseItem(Humanoid user, ItemData item) { return false; }
 
-    public override void Load()
+    public override Guid GetId()
     {
-        storage = Library.GetObject(netView.GetZDO()) as IStorage;
-        AllStorages.Add(this);
+        if (storage == null || !storage.IsValid()) return Guid.Empty;
+        return storage.GetId();
     }
+
+    public override void Load() { storage = Library.GetObject(netView.GetZDO()) as IStorage; }
 
     public override string GetHoverText()
     {

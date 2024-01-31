@@ -4,10 +4,9 @@
 file static class GameStartEnd
 {
     [HarmonyPatch(nameof(Game.Start))] [HarmonyPostfix]
-    private static async void Start()
+    private static void Start()
     {
         EOLifeHandler.Clear();
-        await EOLifeHandler.Load();
         Updater.Start();
     }
 

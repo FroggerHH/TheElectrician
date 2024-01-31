@@ -11,7 +11,7 @@ public class Plugin : BaseUnityPlugin
 {
     private const string ModName = "TheElectrician",
         ModAuthor = "Frogger",
-        ModVersion = "0.1.0",
+        ModVersion = "0.1.1",
         ModGUID = $"com.{ModAuthor}.{ModName}";
 
     private void Awake()
@@ -25,6 +25,8 @@ public class Plugin : BaseUnityPlugin
 
     private void AddBuildPieces()
     {
+        //TODO: Add some consumers
+        //TODO: Add electric smelter
         LoadAssetBundle("theelectrician");
 
         BuildPiece coalGenerator = new(bundle, "TE_coalGenerator");
@@ -56,7 +58,7 @@ public class Plugin : BaseUnityPlugin
         woodStorage.RequiredItems.Add("Wood", 60, true);
         woodStorage.RequiredItems.Add("Resin", 35, true);
         woodStorage.Category.Set("TheElectrician");
-        Library.Register("TE_woodenStorage", new StorageSettings(typeof(Storage), 1000));
+        Library.Register("TE_woodenStorage", new StorageSettings(typeof(Storage), 100));
     }
 
     private void UpdateConfiguration() { Debug("Configuration Received"); }
