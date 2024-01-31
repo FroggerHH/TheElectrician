@@ -4,5 +4,5 @@ public enum WireState
 {
     Idle,
     Connecting,
-    Disconnecting,
+    Disconnecting
 }

@@ -16,4 +16,13 @@ public class GeneratorSettings : StorageSettings
         this.fuelPerTick = fuelPerTick;
         this.maxFuel = maxFuel;
     }
+
+    public override string ToString()
+    {
+        return $"Settings: type={type.Name} "
+               + $"fuelItem={fuelItem} "
+               + $"fuelPerTick={fuelPerTick} "
+               + $"maxFuel={maxFuel} "
+               + $"powerPerTick={powerPerTick} ";
+    }
 }

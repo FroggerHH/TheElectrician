@@ -3,50 +3,15 @@ using TheElectrician.Objects.Mono.Wire;
 
 namespace TheElectrician.Objects.Mono;
 
-public class MonoWire : MonoBehaviour, Hoverable, Interactable
+public class MonoWire : ElectricMono, Hoverable, Interactable
 {
-    public static List<MonoWire> allWires { get; private set; } = new();
     private Transform cablesParent;
+    public static List<MonoWire> allWires { get; } = new();
     public IWire wire { get; private set; }
-    public ZNetView netView { get; private set; }
-    public Piece piece { get; private set; }
 
+    public override void OnDestroy() { allWires.Remove(this); }
 
-    public void Awake()
-    {
-        netView = GetComponent<ZNetView>();
-        if (!netView.IsValid()) return;
-        piece = GetComponent<Piece>();
-        wire = Library.GetObject(netView.GetZDO()) as IWire;
-        if (wire is null)
-        {
-            DebugError($"Wire {netView.GetZDO()} not found");
-            foreach (var child in gameObject.GetComponentsInChildren<Renderer>()) child.material.color = Color.red;
-            return;
-        }
-
-        allWires.Add(this);
-
-        cablesParent = transform.FindChildByName("CablesAttach");
-        if (cablesParent == null)
-        {
-            DebugWarning("Cables parent not found");
-            cablesParent = new GameObject("Cables").transform;
-            cablesParent.SetParent(transform);
-            cablesParent.position = gameObject.GetTopPosition();
-        }
-
-        wire.onConnectionsChanged.AddListener(UpdateCables);
-        InvokeRepeating(nameof(SUpdate), 1, 1.5f);
-    }
-
-    public void SUpdate()
-    {
-        if (wire is null) return;
-        UpdateCables();
-    }
-
-    public string GetHoverText()
+    public override string GetHoverText()
     {
         StringBuilder sb = new();
         sb.AppendLine(piece.m_name.Localize());
@@ -59,15 +24,17 @@ public class MonoWire : MonoBehaviour, Hoverable, Interactable
         }
 
         sb.AppendLine();
-        sb.AppendLine($"${ModName}_power_in_system".Localize() + ": " + PowerFlow.GetPowerInSystem(wire));
+        var powerInSystem = PowerFlow.GetPowerInSystem(wire);
+        if (powerInSystem != -1)
+            sb.AppendLine(string.Format($"${ModName}_power_in_system".Localize(), powerInSystem));
+        else
+            sb.AppendLine($"${ModName}_wire_out_of_power_system".Localize());
         sb.AppendLine($"[<color=yellow><b>E</b></color>] ${ModName}_wire_connect".Localize());
         sb.AppendLine($"[<color=yellow><b>$button_lshift + E</b></color>] ${ModName}_wire_disconnect"
             .Localize());
 
         return sb.ToString();
     }
-
-    public string GetHoverName() { return piece.m_name.Localize(); }
 
     public bool Interact(Humanoid user, bool hold, bool alt)
     {
@@ -84,6 +51,37 @@ public class MonoWire : MonoBehaviour, Hoverable, Interactable
 
 
     public bool UseItem(Humanoid user, ItemData item) { return false; }
+
+    public override void SetUp()
+    {
+        base.SetUp();
+        if (!netView.IsValid()) return;
+        cablesParent = transform.FindChildByName("CablesAttach");
+        if (cablesParent == null)
+        {
+            DebugWarning("Cables parent not found");
+            cablesParent = new GameObject("Cables").transform;
+            cablesParent.SetParent(transform);
+            cablesParent.position = gameObject.GetTopPosition();
+        }
+    }
+
+    public override void Load()
+    {
+        wire = Library.GetObject(netView.GetZDO()) as IWire;
+        if (wire is null)
+        {
+            DebugError($"Wire {netView.GetZDO()} not found");
+            foreach (var child in gameObject.GetComponentsInChildren<Renderer>()) child.material.color = Color.red;
+            return;
+        }
+
+        wire.InitData();
+
+        allWires.Add(this);
+        wire.onConnectionsChanged.AddListener(UpdateCables);
+        InvokeRepeating(nameof(UpdateCables), 1, 1.5f);
+    }
 
     private void UpdateCables()
     {
@@ -174,15 +172,4 @@ public class MonoWire : MonoBehaviour, Hoverable, Interactable
         connectingWire.SetState(WireState.Idle);
         m_localPlayer?.Message(MessageHud.MessageType.TopLeft, "<color=#95E455>Disconnected</color>");
     }
-
-    public void OnDestroy()
-    {
-        allWires.Remove(this);
-        foreach (var monoWire in allWires)
-        {
-            monoWire.UpdateConnections();
-        }
-    }
-
-    private void UpdateConnections() => wire.UpdateConnectionsList();
 }

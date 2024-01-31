@@ -16,7 +16,19 @@ public static class Updater
 
     private static void Update()
     {
-        PowerFlow.Update();
+        try
+        {
+            PowerFlow.Update();
+            UpdateObjects();
+        }
+        catch (Exception e)
+        {
+            DebugError($"Updater error: {e}");
+        }
+    }
+
+    private static void UpdateObjects()
+    {
         var enumerable = Library.GetAllObjects();
         foreach (var obj in enumerable) obj.Update();
     }

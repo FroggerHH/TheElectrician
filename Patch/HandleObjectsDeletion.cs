@@ -1,14 +1,16 @@
 ﻿namespace TheElectrician.Patch;
 
-[HarmonyPatch(typeof(WearNTear), nameof(WearNTear.RPC_Remove))] [HarmonyWrapSafe]
+[HarmonyWrapSafe]
+//TODO: ZDOMan.DestroyZDO
+[HarmonyPatch(typeof(ZNetScene), nameof(ZNetScene.Destroy), typeof(GameObject))]
 file class HandleObjectsDeletion
 {
     [HarmonyPrefix] [UsedImplicitly]
-    public static void Remove(WearNTear __instance)
+    public static void Patch(GameObject go)
     {
-        if (!__instance) return;
-        Debug(
-            $"Piece destroyed: {__instance}, m_nview: {__instance.m_nview?.ToString() ?? "null"}, zdo: {__instance.m_nview?.GetZDO()?.ToString() ?? "null"}");
-        Library.RemoveObject(Library.GetObject(__instance.m_nview.GetZDO()));
+        if (!go) return;
+        var netView = go.GetComponent<ZNetView>();
+        if (!netView) return;
+        EOLifeHandler.DestroyEO(netView.GetZDO());
     }
 }

@@ -4,17 +4,17 @@
 file static class GameStartEnd
 {
     [HarmonyPatch(nameof(Game.Start))] [HarmonyPostfix]
-    private static void Start()
+    private static async void Start()
     {
-        Library.Clear();
-        Library.AddObjectsFromWorld();
+        EOLifeHandler.Clear();
+        await EOLifeHandler.Load();
         Updater.Start();
     }
 
     [HarmonyPatch(nameof(Game.OnDestroy))] [HarmonyPostfix]
     private static void End()
     {
-        Library.Clear();
+        EOLifeHandler.Clear();
         Updater.Destroy();
     }
 }

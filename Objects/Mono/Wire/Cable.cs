@@ -2,22 +2,22 @@ namespace TheElectrician.Objects.Mono.Wire;
 
 public class Cable : MonoBehaviour
 {
-    private Vector3 pos1;
-    private Vector3 pos2;
-
-    private MeshFilter _meshFilter;
-    private MeshRenderer _meshRenderer;
-    private LineRenderer lineRenderer;
     [SerializeField] private int _sides = 6;
     [SerializeField] private float radius = 0.05f;
     [SerializeField] private bool _useWorldSpace = true;
     [SerializeField] private float _falloffByDistance = 0.2f;
+    private Mesh _mesh;
+
+    private MeshFilter _meshFilter;
+    private MeshRenderer _meshRenderer;
 
     private Vector3[] _positions;
-    private float distance;
-    private Mesh _mesh;
     private Vector3[] _vertices;
     private Vector3 betweenVector;
+    private float distance;
+    private LineRenderer lineRenderer;
+    private Vector3 pos1;
+    private Vector3 pos2;
 
     public Material material
     {
@@ -40,11 +40,11 @@ public class Cable : MonoBehaviour
         }
     }
 
-    private void OnBecameVisible() => _meshRenderer.enabled = true;
+    private void LateUpdate() { _sides = Max(3, _sides); }
 
-    private void OnBecameInvisible() => _meshRenderer.enabled = false;
+    private void OnBecameInvisible() { _meshRenderer.enabled = false; }
 
-    private void LateUpdate() => _sides = Max(3, _sides);
+    private void OnBecameVisible() { _meshRenderer.enabled = true; }
 
     public void SetConnection(Vector3 obj1, Vector3 obj2)
     {
@@ -57,9 +57,9 @@ public class Cable : MonoBehaviour
         _falloffByDistance = Clamp(.1f * Vector3.Distance(pos1, pos2), 0f, Consts.wireMaxFalloffByDistance);
         betweenVector.y -= _falloffByDistance;
         SetPositions(
-            new(pos1.x, pos1.y, pos1.z),
+            new Vector3(pos1.x, pos1.y, pos1.z),
             betweenVector,
-            new(pos2.x, pos2.y, pos2.z)
+            new Vector3(pos2.x, pos2.y, pos2.z)
         );
     }
 

@@ -8,4 +8,9 @@ public interface IElectricObject
     void Update();
     void InitSettings(ElectricObjectSettings settings);
     Guid GetId();
+
+    bool IsValid();
+
+    void InitData();
+    string ToString();
 }

@@ -1,4 +1,6 @@
-﻿namespace TheElectrician.Patch;
+﻿using TheElectrician.Objects.Mono;
+
+namespace TheElectrician.Patch;
 
 [HarmonyPatch]
 file class HandleObjectsCreation
@@ -8,13 +10,14 @@ file class HandleObjectsCreation
     public static void PieceAwake(Piece __instance)
     {
         if (!__instance || !__instance.m_nview || !__instance.m_nview.IsValid()) return;
+        if (!Library.IsEO(__instance)) return;
 
-        Library.SpawnObject(__instance.m_nview.GetZDO());
+        EOLifeHandler.CreateNewEO(__instance.m_nview.GetZDO(), out _);
+        var electricMono = __instance.GetComponent<ElectricMono>();
+        if (electricMono)
+        {
+            electricMono.SetUp();
+            electricMono.Load();
+        }
     }
-
-    [HarmonyPatch(typeof(Game), nameof(Game.SpawnPlayer))] [HarmonyWrapSafe]
-    [HarmonyPostfix] [UsedImplicitly]
-    public static void Player_Spawn() { Library.AddObjectsFromWorld(); }
 }
-
-//TODO: Add Wire object

@@ -2,25 +2,15 @@
 
 namespace TheElectrician.Objects.Mono;
 
-public class MonoGenerator : MonoBehaviour, Hoverable, Interactable
+public class MonoGenerator : ElectricMono, Hoverable, Interactable
 {
     private static readonly float HoldRepeatInterval = 0.2f;
-
-    public IGenerator generator { get; private set; }
-    public ZNetView netView { get; private set; }
-    public Piece piece { get; private set; }
+    private GameObject enabledVisual;
+    private GameObject itemPreview;
     private float m_lastUseTime;
+    public IGenerator generator { get; private set; }
 
-
-    void Awake()
-    {
-        netView = GetComponent<ZNetView>();
-        if (!netView.IsValid()) return;
-        piece = GetComponent<Piece>();
-        generator = Library.GetObject(netView.GetZDO()) as IGenerator;
-    }
-
-    public string GetHoverText()
+    public override string GetHoverText()
     {
         if (generator == null) return string.Empty;
         var sb = new StringBuilder();
@@ -46,14 +36,12 @@ public class MonoGenerator : MonoBehaviour, Hoverable, Interactable
         return sb.ToString();
     }
 
-    public string GetHoverName() { return $"${ModName}_storage".Localize(); }
-
     public bool Interact(Humanoid user, bool hold, bool alt)
     {
         if (MonoStorage.ConnectDisconnectWire(hold, alt, generator)) return true;
         if (hold && (HoldRepeatInterval <= 0.0 || Time.time - m_lastUseTime < HoldRepeatInterval))
             return false;
-        this.m_lastUseTime = Time.time;
+        m_lastUseTime = Time.time;
 
         var fuelItemPrefabName = generator.GetFuelItem();
         var fuelItem = ZNetScene.instance.GetPrefab(fuelItemPrefabName)?.GetComponent<ItemDrop>()?.m_itemData
@@ -85,6 +73,57 @@ public class MonoGenerator : MonoBehaviour, Hoverable, Interactable
         return addResult;
     }
 
+    public override void SetUp()
+    {
+        base.SetUp();
+        enabledVisual = transform.Find("EnabledVisual")?.gameObject;
+        if (!enabledVisual)
+        {
+            enabledVisual = new GameObject("EnabledVisual");
+            enabledVisual.transform.parent = transform;
+            enabledVisual.transform.localPosition = Vector3.zero;
+
+            DebugWarning($"Generator {gameObject.GetPrefabName()} has no enabled visual");
+        }
+
+        enabledVisual.SetActive(false);
+
+        itemPreview = transform.Find("ItemPreview")?.gameObject;
+        if (!itemPreview)
+        {
+            itemPreview = new GameObject("ItemPreview");
+            itemPreview.transform.parent = transform;
+            itemPreview.transform.localPosition = Vector3.zero;
+
+            DebugWarning($"Generator {gameObject.GetPrefabName()} has no item preview");
+        }
+    }
+
+    public override void Load()
+    {
+        if (!netView.IsValid()) return;
+        generator = Library.GetObject(netView.GetZDO()) as IGenerator;
+        if (generator is null) return;
+
+        generator.InitData();
+
+        if (generator.GetFuelItem().IsGood())
+        {
+            var item = ZNetScene.instance.GetPrefab(generator.GetFuelItem())?.transform.Find("attach");
+            if (!item) return;
+
+            Instantiate(item.gameObject, itemPreview.transform);
+        }
+
+        InvokeRepeating(nameof(UpdateVisual), 1.0f, 1.0f);
+    }
+
+    private void UpdateVisual()
+    {
+        enabledVisual.SetActive(generator.HasFuel());
+        itemPreview.SetActive(generator.Count(generator.GetFuelItem()) > 0);
+    }
+
     public void OnDestroyed()
     {
         if (!netView.IsOwner()) return;
@@ -95,7 +134,7 @@ public class MonoGenerator : MonoBehaviour, Hoverable, Interactable
     {
         generator.Remove(Consts.storagePowerKey, generator.Count(Consts.storagePowerKey));
         var transform1 = transform;
-        foreach (var item in generator.CurrentStored())
+        foreach (var item in generator.GetStored())
         {
             var prefabName = item.Key;
             var count = item.Value;
@@ -104,7 +143,7 @@ public class MonoGenerator : MonoBehaviour, Hoverable, Interactable
             if (prefab == null) continue;
             var itemDrop = Instantiate(prefab, transform1.position, transform1.rotation).GetComponent<ItemDrop>();
             itemDrop.m_itemData.m_stack = FloorToInt(count);
-            ItemDrop.OnCreateNew(itemDrop);
+            OnCreateNew(itemDrop);
         }
     }
 }

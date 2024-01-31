@@ -3,29 +3,41 @@ using TheElectrician.Objects.Mono.Wire;
 
 namespace TheElectrician.Objects.Mono;
 
-public class MonoStorage : MonoBehaviour, Hoverable, Interactable
+public class MonoStorage : ElectricMono, Interactable
 {
     public static List<MonoStorage> AllStorages = new();
     public IStorage storage { get; private set; }
-    public ZNetView netView { get; private set; }
-    public Piece piece { get; private set; }
 
-
-    protected virtual void Awake()
+    public override void OnDestroy()
     {
-        netView = GetComponent<ZNetView>();
-        if (!netView.IsValid()) return;
-        piece = GetComponent<Piece>();
-        storage = Library.GetObject(netView.GetZDO()) as IStorage;
+        if (!netView || !netView.IsValid() || !storage.IsValid()) return;
+        DropAll();
+        AllStorages.Remove(this);
+    }
 
+    public virtual bool Interact(Humanoid user, bool hold, bool alt)
+    {
+        return ConnectDisconnectWire(hold, alt, storage);
+    }
+
+    public virtual bool UseItem(Humanoid user, ItemData item) { return false; }
+
+    public override void Load()
+    {
+        storage = Library.GetObject(netView.GetZDO()) as IStorage;
         AllStorages.Add(this);
     }
 
-    public virtual string GetHoverText()
+    public override string GetHoverText()
     {
         var sb = new StringBuilder();
         sb.AppendLine(piece.m_name.Localize());
-        if (m_debugMode) sb.AppendLine($"ID: {storage.GetId()}");
+        if (m_debugMode)
+        {
+            sb.AppendLine($"ID: {storage.GetId()}");
+            var connected = storage.GetConnections().Select(x => x?.GetId().ToString() ?? "null").ToList();
+            sb.AppendLine($"Connected: {(connected.Count > 0 ? connected.GetString() : "none")}");
+        }
 
         sb.AppendLine();
         sb.AppendLine($"${ModName}_storage_capacity".Localize() + ": " + storage.GetCapacity());
@@ -37,7 +49,7 @@ public class MonoStorage : MonoBehaviour, Hoverable, Interactable
     {
         var sb = new StringBuilder();
 
-        var currentStored = storage.CurrentStored();
+        var currentStored = storage.GetStored();
         if (currentStored.Sum(x => x.Value) > 0) sb.AppendLine($"${ModName}_storage_stored".Localize());
         else if (addEmptyMessage) return $"${ModName}_storage_empty".Localize();
         else return string.Empty;
@@ -47,10 +59,12 @@ public class MonoStorage : MonoBehaviour, Hoverable, Interactable
             var count = itemPair.Value;
             if (!prefabName.IsGood()) continue;
             string itemName;
-            if (prefabName == Consts.storagePowerKey) itemName = $"${ModName}_power";
-            else
+            if (prefabName == Consts.storagePowerKey)
             {
-                SharedData sharedData = ZNetScene.instance.GetPrefab(prefabName)
+                itemName = $"${ModName}_power";
+            } else
+            {
+                var sharedData = ZNetScene.instance.GetPrefab(prefabName)
                     ?.GetComponent<ItemDrop>()?.m_itemData?.m_shared;
                 if (sharedData is null) continue;
                 itemName = sharedData.m_name;
@@ -62,14 +76,7 @@ public class MonoStorage : MonoBehaviour, Hoverable, Interactable
         return sb.ToString().Localize();
     }
 
-    public virtual string GetHoverName() { return $"${ModName}_storage".Localize(); }
-
-    public virtual bool Interact(Humanoid user, bool hold, bool alt)
-    {
-        return ConnectDisconnectWire(hold, alt, storage);
-    }
-
-    public static bool ConnectDisconnectWire(bool hold, bool alt, IStorage storage)
+    public static bool ConnectDisconnectWire(bool hold, bool alt, IStorage connectingToStorage)
     {
         if (hold) return false;
         if (alt) return false;
@@ -83,20 +90,20 @@ public class MonoStorage : MonoBehaviour, Hoverable, Interactable
             return false;
         }
 
-        IWire wire = null;
+        IWire wire;
         if (wires.Count == 0)
-            wires = allWires.FindAll(x => x.GetState() == WireState.Disconnecting);
-        else
         {
-            wire = wires.FirstOrDefault();
-            if (wire == null) return false;
-
-            wire.SetState(WireState.Idle);
-            wire.AddConnection(storage);
+            wires = allWires.FindAll(x => x.GetState() == WireState.Disconnecting);
+        } else
+        {
+            //Connecting
+            wire = wires.First();
+            wire.AddConnection(connectingToStorage);
             m_localPlayer?.Message(MessageHud.MessageType.TopLeft, "<color=#95E455>Connected</color>");
             return true;
         }
 
+        //Disconnecting
         if (wires.Count > 1)
         {
             DebugError($"There are {wires.Count} disconnecting to managed object wires. This should not happen");
@@ -106,29 +113,17 @@ public class MonoStorage : MonoBehaviour, Hoverable, Interactable
 
         if (wires.Count == 0) return false;
 
-        wire = wires.FirstOrDefault();
-        if (wire == null) return false;
-
-        wire.SetState(WireState.Idle);
-        wire.RemoveConnection(storage);
+        wire = wires.First();
+        wire.RemoveConnection(connectingToStorage);
         m_localPlayer?.Message(MessageHud.MessageType.TopLeft, "<color=#95E455>Disconnected</color>");
         return true;
-    }
-
-    public virtual bool UseItem(Humanoid user, ItemData item) => false;
-
-    public void OnDestroyed()
-    {
-        if (!netView.IsOwner()) return;
-        DropAll();
-        AllStorages.Remove(this);
     }
 
     private void DropAll()
     {
         storage.Remove(Consts.storagePowerKey, storage.Count(Consts.storagePowerKey));
         var transform1 = transform;
-        foreach (var item in storage.CurrentStored())
+        foreach (var item in storage.GetStored())
         {
             var prefabName = item.Key;
             var count = item.Value;
@@ -137,7 +132,7 @@ public class MonoStorage : MonoBehaviour, Hoverable, Interactable
             if (prefab == null) continue;
             var itemDrop = Instantiate(prefab, transform1.position, transform1.rotation).GetComponent<ItemDrop>();
             itemDrop.m_itemData.m_stack = FloorToInt(count);
-            ItemDrop.OnCreateNew(itemDrop);
+            OnCreateNew(itemDrop);
         }
     }
 }

@@ -5,105 +5,101 @@ using UnityEngine.Events;
 
 namespace TheElectrician.Objects;
 
-public class Wire : IWire
+public class Wire : ElectricObject, IWire
 {
-    private readonly ZDO zdo;
-    private HashSet<IElectricObject> cashedConnections;
+    private HashSet<IWireConnectable> cashedConnections;
     private WireState state;
-    public UnityEvent onConnectionsChanged { get; }
+    private WireSettings wireSettings;
+    public UnityEvent onConnectionsChanged { get; private set; }
 
-    public void UpdateConnectionsList()
+    public override void InitData()
     {
+        base.InitData();
         GetConnections();
-        onConnectionsChanged?.Invoke();
+        GetConductivity();
+        onConnectionsChanged = new UnityEvent();
     }
 
-    public Wire(ZDO zdo)
+    public override void InitSettings(ElectricObjectSettings settings)
     {
-        this.zdo = zdo;
-        Library.TryGiveId(this);
-        GetConnections();
-        onConnectionsChanged = new();
-        onConnectionsChanged.AddListener(() => Debug($"Wire {GetId()} connections changed"));
+        base.InitSettings(settings);
+        wireSettings = GetSettings<WireSettings>();
+        if (wireSettings is null)
+            DebugError($"Wire.InitSettings: Settings '{GetSettings()?.GetType().Name}' is not WireSettings");
     }
 
-
-    public ZDO GetZDO() => zdo;
-
-    public void Update() { }
-
-    public void InitSettings(ElectricObjectSettings settings)
+    public float GetConductivity()
     {
-        if (settings is not WireSettings wireSettings) return;
-        SetConductivity(wireSettings.conductivity);
+        var conductivity = GetZDO().GetFloat(Consts.wireConductivityKey, -1);
+        if (conductivity == -1)
+        {
+            conductivity = wireSettings.conductivity;
+            SetConductivity(conductivity);
+        }
+
+        return conductivity;
     }
 
-    public Guid GetId() => Guid.Parse(zdo.GetString(Consts.electricObjectIdKey, Guid.Empty.ToString()));
+    public void SetConductivity(float conductivity) { GetZDO().Set(Consts.wireConductivityKey, conductivity); }
 
-    public HashSet<IElectricObject> GetConnections()
+    public WireState GetState() { return state; }
+
+    public void SetState(WireState newState) { state = newState; }
+
+    public HashSet<IWireConnectable> GetConnections()
     {
-        var savedString = GetZDO().GetString(Consts.storageKey, "-1");
+        if (IsValid() == false) return cashedConnections;
+        var savedString = GetZDO().GetString(Consts.connectionsKey, "-1");
         if (savedString == "-1")
         {
-            cashedConnections = new();
+            cashedConnections = new HashSet<IWireConnectable>();
             return cashedConnections;
         }
 
-        cashedConnections = savedString.Split(';').Select(x =>
+        cashedConnections = savedString.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(x =>
         {
             if (Guid.TryParse(x, out var guid))
-                return Library.GetObject(guid) as IElectricObject;
-            else
-            {
-                DebugError($"Failed to parse guid: '{x}'");
-                return null;
-            }
+                return Library.GetObject(guid) as IWireConnectable;
+
+            DebugError($"Failed to parse guid: '{x}'");
+            return null;
         }).ToHashSet();
         return cashedConnections;
     }
 
-
-    public void AddConnection(IElectricObject electricObject)
+    public void AddConnection(IWireConnectable connectable)
     {
-        Debug($"Adding connection: {electricObject?.GetId().ToString() ?? "null"} to {GetId()}");
-        if (electricObject is null) return;
-        if (cashedConnections.Contains(electricObject)) return;
-        cashedConnections.Add(electricObject);
-        if (electricObject is IWire)
-            ((IWire)electricObject).AddConnection(this);
-        else if (electricObject is Storage)
-            ((IStorage)electricObject).AddConnectionWire(this);
+        if (connectable is null) return;
+        if (cashedConnections.Contains(connectable)) return;
+        cashedConnections.Add(connectable);
+        UpdateConnections();
+        connectable.AddConnection(this);
+        SetState(WireState.Idle);
+    }
 
+    public void RemoveConnection(IWireConnectable connectable)
+    {
+        if (connectable is null) return;
+        if (!cashedConnections.Contains(connectable)) return;
+        cashedConnections.Remove(connectable);
+        UpdateConnections();
+        SetState(WireState.Idle);
+        connectable.RemoveConnection(this);
+    }
+
+    public void SetConnections(HashSet<IWireConnectable> connections)
+    {
+        cashedConnections = connections;
         UpdateConnections();
     }
 
-    public void RemoveConnection(IElectricObject electricObject)
-    {
-        if (electricObject is null) return;
-        if (!cashedConnections.Contains(electricObject)) return;
-        cashedConnections.Remove(electricObject);
-        if (electricObject is IWire wire) wire.RemoveConnection(this);
-        else if (electricObject is IStorage storage) storage.RemoveConnectionWire(this);
-        UpdateConnections();
-    }
+    public bool CanConnectOnlyToWires() { return false; }
 
-    public float GetConductivity() => zdo.GetFloat(Consts.wireConductivityKey);
-
-    public void SetConductivity(float conductivity) => zdo.Set(Consts.wireConductivityKey, conductivity);
-
-    public WireState GetState() { return state; }
-
-    public void SetState(WireState newState) => this.state = newState;
-
-    private void UpdateConnections()
-    {
-        cashedConnections = cashedConnections.Where(x => x is not null).ToHashSet();
-        GetZDO().Set(Consts.storageKey, string.Join(";", cashedConnections.Select(x => x.GetId())));
-        onConnectionsChanged?.Invoke();
-    }
+    public virtual int MaxConnections() { return Consts.defaultWireMaxConnections; }
 
     public override string ToString()
     {
+        if (!IsValid()) return "Uninitialized Wire";
         string connectedListStr;
         if (cashedConnections is null) connectedListStr = "none";
         else
@@ -112,5 +108,15 @@ public class Wire : IWire
                 : "no one";
 
         return $"Wire {GetId()} connected to: '{connectedListStr}'";
+    }
+
+
+    private void UpdateConnections()
+    {
+        cashedConnections = cashedConnections.Where(x => x is not null).ToHashSet();
+        if (!IsValid()) return;
+        var joinedStr = string.Join(";", cashedConnections.Select(x => x.GetId()));
+        GetZDO().Set(Consts.connectionsKey, joinedStr);
+        onConnectionsChanged?.Invoke();
     }
 }

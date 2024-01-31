@@ -37,7 +37,7 @@ public class Plugin : BaseUnityPlugin
         coalGenerator.RequiredItems.Add("SurtlingCore", 4, true);
         coalGenerator.Category.Set("TheElectrician");
         Library.Register("TE_coalGenerator", new GeneratorSettings(
-            typeof(Generator), 150, 0.41f, "Coal", 1.5f, 100));
+            typeof(Generator), 150, 1.5f, "Coal", 0.41f, 100));
 
         BuildPiece woodWire = new(bundle, "TE_woodWire");
         woodWire.Name.English("Wooden wire fastening");
