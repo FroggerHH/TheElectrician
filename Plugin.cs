@@ -20,10 +20,10 @@ public class Plugin : BaseUnityPlugin
         OnConfigurationChanged += UpdateConfiguration;
 
         Localizer.Load();
-        AddItems();
+        AddBuildPieces();
     }
 
-    private void AddItems()
+    private void AddBuildPieces()
     {
         LoadAssetBundle("theelectrician");
 
@@ -35,9 +35,28 @@ public class Plugin : BaseUnityPlugin
         coalGenerator.RequiredItems.Add("Coal", 5, false);
         coalGenerator.RequiredItems.Add("FineWood", 15, true);
         coalGenerator.RequiredItems.Add("SurtlingCore", 4, true);
-        coalGenerator.Category.Set(BuildPieceCategory.Crafting);
+        coalGenerator.Category.Set("TheElectrician");
         Library.Register("TE_coalGenerator", new GeneratorSettings(
-            typeof(Generator), 150, 0.41f, "Coal", 1.5f, 100));
+            typeof(Generator), 150, 1.5f, "Coal", 0.41f, 100));
+
+        BuildPiece woodWire = new(bundle, "TE_woodWire");
+        woodWire.Name.English("Wooden wire fastening");
+        woodWire.Name.Russian("Деревянное крепление провода");
+        woodWire.Description.English("Allows connecting objects with wires. Conducts 32 EU per tick.");
+        woodWire.Description.Russian("Позволяет соединять объекты проводами. Передаёт 32 EU в тик.");
+        woodWire.RequiredItems.Add("Wood", 1, true);
+        woodWire.Category.Set("TheElectrician");
+        Library.Register("TE_woodWire", new WireSettings(typeof(Wire), 32f));
+
+        BuildPiece woodStorage = new(bundle, "TE_woodenStorage");
+        woodStorage.Name.English("Wooden power storage");
+        woodStorage.Name.Russian("Деревянное хранилище энергии");
+        woodStorage.Description.English("Stores 1k EU");
+        woodStorage.Description.Russian("Хранит 1к EU");
+        woodStorage.RequiredItems.Add("Wood", 60, true);
+        woodStorage.RequiredItems.Add("Resin", 35, true);
+        woodStorage.Category.Set("TheElectrician");
+        Library.Register("TE_woodenStorage", new StorageSettings(typeof(Storage), 1000));
     }
 
     private void UpdateConfiguration() { Debug("Configuration Received"); }

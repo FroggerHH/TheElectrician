@@ -67,13 +67,13 @@
             <HintPath>..\..\Unity\Unity Hub\versions\2020.3.36f1\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.AssetBundleModule">
-          <HintPath>..\..\..\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
+            <HintPath>..\..\..\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.CoreModule">
             <HintPath>..\..\Unity\Unity Hub\versions\2020.3.36f1\Editor\Data\Managed\UnityEngine\UnityEngine.CoreModule.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.IMGUIModule">
-          <HintPath>..\..\..\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+            <HintPath>..\..\..\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.InputLegacyModule">
             <HintPath>..\..\..\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
@@ -86,39 +86,52 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="Consts.cs" />
+        <Compile Include="Consts.cs"/>
         <Compile Include="GlobalUsings.cs"/>
-        <Compile Include="Libs\LocalizationManager\LocalizationManager.cs" />
-        <Compile Include="Libs\PieceManager\PieceManager.cs" />
-        <Compile Include="Models\IElectricObject.cs" />
-        <Compile Include="Models\IGenerator.cs" />
-        <Compile Include="Models\IStorage.cs" />
-        <Compile Include="Models\Settings\ElectricObjectSettings.cs" />
-        <Compile Include="Models\Settings\GeneratorSettings.cs" />
-        <Compile Include="Models\Settings\StorageSettings.cs" />
-        <Compile Include="Objects\Generator.cs" />
-        <Compile Include="Objects\Mono\MonoGenerator.cs" />
-        <Compile Include="Objects\Mono\MonoStorage.cs" />
-        <Compile Include="Objects\Storage.cs" />
-        <Compile Include="Patch\FinishPieces.cs" />
-        <Compile Include="Patch\GameStartEnd.cs" />
-        <Compile Include="Patch\HandleObjectsCreation.cs" />
-        <Compile Include="Patch\HandleObjectsDeletion.cs" />
+        <Compile Include="Libs\LocalizationManager\LocalizationManager.cs"/>
+        <Compile Include="Libs\PieceManager\PieceManager.cs"/>
+        <Compile Include="Models\IElectricObject.cs"/>
+        <Compile Include="Models\IGenerator.cs"/>
+        <Compile Include="Models\IStorage.cs"/>
+        <Compile Include="Models\IWire.cs"/>
+        <Compile Include="Models\IWireConnectable.cs"/>
+        <Compile Include="Models\Settings\ElectricObjectSettings.cs"/>
+        <Compile Include="Models\Settings\GeneratorSettings.cs"/>
+        <Compile Include="Models\Settings\StorageSettings.cs"/>
+        <Compile Include="Models\Settings\WireSettings.cs"/>
+        <Compile Include="Objects\ElectricObject.cs"/>
+        <Compile Include="Objects\Generator.cs"/>
+        <Compile Include="Objects\Mono\ElectricMono.cs"/>
+        <Compile Include="Objects\Mono\MonoGenerator.cs"/>
+        <Compile Include="Objects\Mono\MonoStorage.cs"/>
+        <Compile Include="Objects\Mono\Wire\Cable.cs"/>
+        <Compile Include="Objects\Mono\Wire\MonoWire.cs"/>
+        <Compile Include="Objects\Mono\Wire\WireState.cs"/>
+        <Compile Include="Objects\PowerSystem.cs"/>
+        <Compile Include="Objects\Storage.cs"/>
+        <Compile Include="Objects\Wire.cs"/>
+        <Compile Include="Patch\FinishPieces.cs"/>
+        <Compile Include="Patch\GameStartEnd.cs"/>
+        <Compile Include="Patch\HandleObjectsCreation.cs"/>
+        <Compile Include="Patch\HandleObjectsDeletion.cs"/>
         <Compile Include="Plugin.cs"/>
         <Compile Include="Properties\AssemblyInfo.cs"/>
-        <Compile Include="Systems\Library.cs" />
-        <Compile Include="Systems\Updater.cs" />
+        <Compile Include="Systems\EOLifeHandler.cs"/>
+        <Compile Include="Systems\EOPool.cs"/>
+        <Compile Include="Systems\Library.cs"/>
+        <Compile Include="Systems\PowerFlow.cs"/>
+        <Compile Include="Systems\Updater.cs"/>
     </ItemGroup>
     <ItemGroup>
         <Content Include="ILRepack.targets"/>
         <EmbeddedResource Include="translations\English.yml">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </EmbeddedResource>
         <EmbeddedResource Include="translations\Russian.yml">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </EmbeddedResource>
         <EmbeddedResource Include="theelectrician">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </EmbeddedResource>
     </ItemGroup>
     <ItemGroup>

@@ -1,8 +1,8 @@
 ﻿namespace TheElectrician.Models;
 
-public interface IStorage : IElectricObject
+public interface IStorage : IWireConnectable
 {
-    Dictionary<string, float> CurrentStored();
+    Dictionary<string, float> GetStored();
     void SetStored(string key, float stored);
     bool Add(string key, float amount);
     bool Remove(string key, float amount);
@@ -15,6 +15,7 @@ public interface IStorage : IElectricObject
     void Clear();
     bool CanAdd(float amount);
     bool CanRemove(string key, float amount);
+    float FreeSpace();
 
     float Count(string key);
     bool TransferTo(IStorage otherStorage, string key, float amount);

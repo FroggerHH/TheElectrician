@@ -5,27 +5,34 @@ namespace TheElectrician.Objects;
 
 public class Generator : Storage, IGenerator
 {
-    public Generator(ZDO ZDO) : base(ZDO) { }
+    private GeneratorSettings generatorSettings;
 
     public override void InitSettings(ElectricObjectSettings settings)
     {
         base.InitSettings(settings);
-        if (settings is not GeneratorSettings generatorSettings)
-        {
-            DebugError("InitSettings: Generator settings is not GeneratorSettings");
-            return;
-        }
+        generatorSettings = GetSettings<GeneratorSettings>();
+        if (generatorSettings is null)
+            DebugError($"Generator.InitSettings: Settings '{GetSettings()?.GetType().Name}' is not GeneratorSettings");
+    }
 
-        SetPowerPerTick(generatorSettings.powerPerTick);
-        SetFuelItem(generatorSettings.fuelItem);
-        SetFuelPerTick(generatorSettings.fuelPerTick);
-        SetMaxFuel(generatorSettings.maxFuel);
+    public override void InitData()
+    {
+        base.InitData();
+        GetFuelItem();
+        GetPowerPerTick();
+        GetFuelPerTick();
+        GetMaxFuel();
     }
 
     public float GetPowerPerTick()
     {
         var powerPerTick = GetZDO().GetFloat(Consts.powerPerTickKey, -1);
-        if (powerPerTick == -1) DebugWarning($"Power per tick of the generator {GetZDO()} has not defined");
+        if (powerPerTick == -1)
+        {
+            powerPerTick = generatorSettings.powerPerTick;
+            SetPowerPerTick(powerPerTick);
+        }
+
         return powerPerTick;
     }
 
@@ -35,13 +42,13 @@ public class Generator : Storage, IGenerator
         if (!HasFuel()) return;
 
         var powerPerTick = GetPowerPerTick();
+        var fuelPerTick = GetFuelPerTick();
         if (!CanAdd(powerPerTick))
         {
             Debug($"Generator {GetZDO()} is full of power");
             return;
         }
- 
-        var fuelPerTick = GetFuelPerTick();
+
         if (!RemoveFuel(fuelPerTick))
         {
             DebugError($"Generator has {GetFuelStored()} fuel but can't remove {fuelPerTick} fuel");
@@ -49,19 +56,15 @@ public class Generator : Storage, IGenerator
         }
 
         Add(Consts.storagePowerKey, powerPerTick);
-        Debug($"Generator {GetZDO()} produced {powerPerTick} power");
     }
 
-    public void SetPowerPerTick(float power) { GetZDO().Set(Consts.powerPerTickKey, power); }
+    public void SetPowerPerTick(float amount) { GetZDO().Set(Consts.powerPerTickKey, amount); }
 
     public void SetActive(bool active) { GetZDO().Set(ZDOVars.s_enabled, active); }
 
-    public bool IsActive() { return GetZDO().GetBool(ZDOVars.s_enabled, true); }
+    public bool IsActive() { return GetZDO()?.GetBool(ZDOVars.s_enabled, true) ?? true; }
 
-    public bool HasFuel()
-    {
-        return GetFuelStored() >= GetFuelPerTick();
-    }
+    public bool HasFuel() { return GetFuelStored() >= GetFuelPerTick(); }
 
     public bool AddFuel(float amount) { return Add(GetFuelItem(), amount); }
 
@@ -74,8 +77,14 @@ public class Generator : Storage, IGenerator
         var fuel = GetZDO().GetString(Consts.fuelItemKey, "None");
         if (fuel == "None")
         {
-            GetZDO().Set(Consts.fuelItemKey, "Coal");
-            DebugWarning($"Fuel of the generator {GetZDO()} has not defined, set to default: Coal");
+            if (generatorSettings is null)
+            {
+                DebugError($"Generator {GetZDO()} has no settings");
+            } else
+            {
+                fuel = generatorSettings.fuelItem;
+                SetFuelItem(fuel);
+            }
         }
 
         return fuel;
@@ -108,8 +117,8 @@ public class Generator : Storage, IGenerator
         var maxFuel = GetZDO().GetInt(Consts.maxFuelKey, -1);
         if (maxFuel == -1)
         {
-            GetZDO().Set(Consts.maxFuelKey, 100);
-            DebugWarning($"Max fuel of the generator {GetZDO()} has not defined, set to default: 100");
+            maxFuel = generatorSettings.maxFuel;
+            SetMaxFuel(maxFuel);
         }
 
         return Min(GetCapacity(), maxFuel);
@@ -122,13 +131,20 @@ public class Generator : Storage, IGenerator
         var fuelPerTick = GetZDO().GetFloat(Consts.fuelPerTickKey, -1);
         if (fuelPerTick == -1)
         {
-            GetZDO().Set(Consts.fuelPerTickKey, 1f);
-            fuelPerTick = 1f;
-            DebugWarning($"Fuel per tick of the generator {GetZDO()} has not defined, set to default: 1");
+            fuelPerTick = generatorSettings.fuelPerTick;
+            SetFuelPerTick(fuelPerTick);
         }
 
         return fuelPerTick;
     }
 
     public void SetFuelPerTick(float amount) { GetZDO().Set(Consts.fuelPerTickKey, amount); }
+
+    public override string ToString()
+    {
+        // string basic = base.ToString();
+        // return $"Generator {GetId()}, active: {IsActive()}, {basic}";
+        if (!IsValid()) return "Uninitialized Generator";
+        return $"Generator {GetId()}, zdo: {GetZDO()}";
+    }
 }

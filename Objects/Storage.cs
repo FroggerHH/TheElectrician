@@ -1,37 +1,39 @@
-﻿using System.Globalization;
-using TheElectrician.Models;
+﻿using TheElectrician.Models;
 using TheElectrician.Models.Settings;
+using UnityEngine.Events;
 
 namespace TheElectrician.Objects;
 
-public class Storage : IStorage
+public class Storage : ElectricObject, IStorage
 {
-    private readonly ZDO zdo;
-    private Dictionary<string, float> cashedStored;
+    private HashSet<IWireConnectable> cashedConnections = new();
+    private Dictionary<string, float> cashedStored = new();
+    private StorageSettings storageSettings;
 
-    public Storage(ZDO ZDO)
+    public override void InitSettings(ElectricObjectSettings sett)
     {
-        zdo = ZDO;
-        cashedStored = CurrentStored();
+        base.InitSettings(sett);
+        storageSettings = GetSettings<StorageSettings>();
+        if (storageSettings is null)
+            DebugError($"Storage.InitSettings: Settings '{GetSettings()?.GetType().Name}' is not StorageSettings");
     }
 
-    public virtual void Update() { }
-
-    public virtual void InitSettings(ElectricObjectSettings settings)
+    public override void InitData()
     {
-        if (settings is not StorageSettings storageSettings)
-        {
-            DebugError("InitSettings: Storage settings is not StorageSettings");
-            return;
-        }
-
-        SetCapacity(storageSettings.capacity);
+        base.InitData();
+        GetStored();
+        GetConnections();
+        onConnectionsChanged = new UnityEvent();
     }
 
-    public Dictionary<string, float> CurrentStored()
+    public Dictionary<string, float> GetStored()
     {
         var savedString = GetZDO().GetString(Consts.storageKey, "-1");
-        if (savedString == "-1") return new();
+        if (savedString == "-1")
+        {
+            cashedStored = new Dictionary<string, float>();
+            return cashedStored;
+        }
 
         cashedStored = savedString
             .Split(';')
@@ -82,9 +84,8 @@ public class Storage : IStorage
         var capacity = GetZDO().GetInt(Consts.capacityKey, -1);
         if (capacity == -1)
         {
-            GetZDO().Set(Consts.capacityKey, 1);
-            DebugWarning($"Capacity of the storage {GetZDO()} has not defined, set to default: 1");
-            return 1;
+            capacity = storageSettings.capacity;
+            SetCapacity(capacity);
         }
 
         return capacity;
@@ -157,6 +158,8 @@ public class Storage : IStorage
         return false;
     }
 
+    public float FreeSpace() { return GetCapacity() - cashedStored.Sum(x => x.Value); }
+
     public float Count(string key) { return cashedStored.TryGetValue(key, out var current) ? current : 0; }
 
     public bool TransferTo(IStorage otherStorage, string key, float amount)
@@ -183,11 +186,73 @@ public class Storage : IStorage
 
     public bool GetFrom(ZDO container, string key, int amount) { throw new NotImplementedException(); }
 
-    public ZDO GetZDO() { return zdo; }
+    public HashSet<IWireConnectable> GetConnections()
+    {
+        if (!IsValid()) return cashedConnections;
+        var savedString = GetZDO().GetString(Consts.connectionsKey, "-1");
+        if (savedString == "-1")
+        {
+            cashedConnections = new HashSet<IWireConnectable>();
+            return cashedConnections;
+        }
+
+        cashedConnections = savedString.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(x =>
+        {
+            if (Guid.TryParse(x, out var guid))
+                return Library.GetObject(guid) as IWireConnectable;
+
+            DebugError($"Failed to parse guid: '{x}'");
+            return null;
+        }).ToHashSet();
+        return cashedConnections;
+    }
+
+    public void AddConnection(IWireConnectable connectable)
+    {
+        if (!connectable.GetConnections().Contains(this)) return;
+        cashedConnections.Add(connectable);
+        UpdateConnections();
+        connectable.AddConnection(this);
+    }
+
+    public void RemoveConnection(IWireConnectable connectable)
+    {
+        if (!connectable.GetConnections().Contains(this)) return;
+        cashedConnections.Remove(connectable);
+        UpdateConnections();
+        connectable.RemoveConnection(this);
+    }
+
+    public void SetConnections(HashSet<IWireConnectable> connections)
+    {
+        cashedConnections = connections;
+        UpdateConnections();
+    }
+
+    public UnityEvent onConnectionsChanged { get; private set; }
+
+    public virtual bool CanConnectOnlyToWires() { return true; }
+
+    public virtual int MaxConnections() { return Consts.defaultStorageMaxConnections; }
+
+    public override string ToString()
+    {
+        if (!IsValid()) return "Uninitialized Storage";
+        return $"Storage {GetId()} stored: {cashedStored.GetString()}";
+    }
 
     private void UpdateCurrentStored()
     {
+        cashedConnections = cashedConnections.Where(x => x is not null).ToHashSet();
         var join = string.Join(";", cashedStored.Select(x => $"{x.Key}:{x.Value}"));
+        if (!IsValid()) return;
         GetZDO().Set(Consts.storageKey, join);
+    }
+
+    private void UpdateConnections()
+    {
+        cashedConnections = cashedConnections.Where(x => x is not null).ToHashSet();
+        GetZDO().Set(Consts.connectionsKey, string.Join(";", cashedConnections.Select(x => x.GetId().ToString())));
+        onConnectionsChanged?.Invoke();
     }
 }
