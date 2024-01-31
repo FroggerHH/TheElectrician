@@ -79,7 +79,6 @@ public class MonoWire : ElectricMono, Hoverable, Interactable
             return;
         }
 
-        wire.InitData();
         wire.onConnectionsChanged.AddListener(UpdateCables);
         InvokeRepeating(nameof(UpdateCables), 1, 1.5f);
     }

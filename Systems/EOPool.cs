@@ -27,6 +27,7 @@ public static class EOPool
         var eo = Get(settings.type);
         eo.Init(zdo);
         eo.InitSettings(settings);
+        eo.InitData();
         return eo;
     }
 

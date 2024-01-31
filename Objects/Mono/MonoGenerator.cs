@@ -111,8 +111,6 @@ public class MonoGenerator : ElectricMono, Hoverable, Interactable
         generator = Library.GetObject(netView.GetZDO()) as IGenerator;
         if (generator is null) return;
 
-        generator.InitData();
-
         if (generator.GetFuelItem().IsGood())
         {
             var item = ZNetScene.instance.GetPrefab(generator.GetFuelItem())?.transform.Find("attach");
