@@ -73,6 +73,12 @@ public class MonoGenerator : ElectricMono, Hoverable, Interactable
         return addResult;
     }
 
+    public override Guid GetId()
+    {
+        if (generator == null || !generator.IsValid()) return Guid.Empty;
+        return generator.GetId();
+    }
+
     public override void SetUp()
     {
         base.SetUp();
@@ -104,8 +110,6 @@ public class MonoGenerator : ElectricMono, Hoverable, Interactable
         if (!netView.IsValid()) return;
         generator = Library.GetObject(netView.GetZDO()) as IGenerator;
         if (generator is null) return;
-
-        generator.InitData();
 
         if (generator.GetFuelItem().IsGood())
         {

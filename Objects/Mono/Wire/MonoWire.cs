@@ -6,10 +6,7 @@ namespace TheElectrician.Objects.Mono;
 public class MonoWire : ElectricMono, Hoverable, Interactable
 {
     private Transform cablesParent;
-    public static List<MonoWire> allWires { get; } = new();
     public IWire wire { get; private set; }
-
-    public override void OnDestroy() { allWires.Remove(this); }
 
     public override string GetHoverText()
     {
@@ -52,6 +49,12 @@ public class MonoWire : ElectricMono, Hoverable, Interactable
 
     public bool UseItem(Humanoid user, ItemData item) { return false; }
 
+    public override Guid GetId()
+    {
+        if (wire == null || !wire.IsValid()) return Guid.Empty;
+        return wire.GetId();
+    }
+
     public override void SetUp()
     {
         base.SetUp();
@@ -76,9 +79,6 @@ public class MonoWire : ElectricMono, Hoverable, Interactable
             return;
         }
 
-        wire.InitData();
-
-        allWires.Add(this);
         wire.onConnectionsChanged.AddListener(UpdateCables);
         InvokeRepeating(nameof(UpdateCables), 1, 1.5f);
     }
@@ -104,11 +104,12 @@ public class MonoWire : ElectricMono, Hoverable, Interactable
             cableTransform.SetParent(cablesParent);
             cableTransform.localPosition = Vector3.zero;
 
-            cable.SetConnection(
-                Library.GetObject(wire.GetId()).GetZDO().GetPosition(),
-                Library.GetObject(connectedWire.GetId()).GetZDO().GetPosition());
+            var first = Library.GetObject(wire.GetId()) as IWireConnectable;
+            var second = Library.GetObject(connectedWire.GetId()) as IWireConnectable;
 
-            //TODO: CablesAttach pos
+            cable.SetConnection(first, second);
+
+            //TODO: Attach cable on the CablesAttach
         }
     }
 

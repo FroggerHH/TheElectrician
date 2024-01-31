@@ -6,17 +6,17 @@ namespace TheElectrician.Systems;
 
 internal static class EOLifeHandler
 {
+    public static bool worldEOsLoaded { get; private set; } = false;
     private static readonly Dictionary<Guid, ElectricObject> m_eoByID = new();
     private static readonly Dictionary<ZDO, ElectricObject> m_eoByZdo = new();
 
-    public static async Task Load()
+    public static async void Load()
     {
+        worldEOsLoaded = true;
         var worldObjects = await ZoneSystem.instance.GetWorldObjectsAsync(x => Library.IsEO(x.GetPrefab()));
         foreach (var zdo in worldObjects)
         {
-            var eo = EOPool.Create(zdo);
-            if (eo is not null)
-                m_eoByID.Add(eo.GetId(), eo);
+            CreateNewEO(zdo, out _);
         }
     }
 
@@ -47,10 +47,7 @@ internal static class EOLifeHandler
 
     internal static List<IElectricObject> GetAllObjects() { return new List<IElectricObject>(m_eoByID.Values); }
 
-    internal static List<T> GetAllObjects<T>() where T : IElectricObject
-    {
-        return m_eoByID.Values.OfType<T>().ToList();
-    }
+    internal static List<T> GetAllObjects<T>() where T : IElectricObject => m_eoByID.Values.OfType<T>().ToList();
 
     internal static ElectricObject GetObject(Guid id) { return m_eoByID.TryGetValue(id, out var eo) ? eo : null; }
 
@@ -59,6 +56,7 @@ internal static class EOLifeHandler
     internal static void Clear()
     {
         m_eoByID.Clear();
+        m_eoByZdo.Clear();
         EOPool.ReleaseAll();
     }
 }

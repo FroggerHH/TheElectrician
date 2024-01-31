@@ -16,16 +16,20 @@ public static class PowerFlow
 
     private static void TransportPowerToStorages()
     {
+        //TODO: Calculate counting conductivity of wires
+
         foreach (var powerSys in powerSystems)
         {
             var storages = powerSys.GetConnections().OfType<Storage>().Where(x => x is not IGenerator && !x.IsFull())
                 .OrderBy(x => x.Count(Consts.storagePowerKey)).ToList();
             var generators = powerSys.GetConnections().OfType<IGenerator>()
-                .Where(x => x.Count(Consts.storagePowerKey) > 0).ToList();
+                .Where(x => x.Count(Consts.storagePowerKey) > 0).OrderByDescending(x => x.Count(Consts.storagePowerKey))
+                .ToList();
             foreach (var storage in storages)
             foreach (var gen in generators)
             {
                 var toAdd = Min(storage.FreeSpace(), gen.Count(Consts.storagePowerKey));
+                if (toAdd == 0) continue;
                 gen.TransferTo(storage, Consts.storagePowerKey, toAdd);
             }
         }
@@ -36,8 +40,6 @@ public static class PowerFlow
         powerSystems.Clear();
         currentPowerSys = null;
         var allStorages = Library.GetAllObjects<Storage>();
-        // Debug(
-        //     $"FormPowerSystems allStorages: {allStorages.Select(x => x?.ToString() ?? "null").GetString() ?? "null"}");
         foreach (var storage in allStorages)
         {
             currentPowerSys = new PowerSystem();
@@ -51,7 +53,7 @@ public static class PowerFlow
         foreach (var powerSys in powerSystems)
         {
             var connected =
-                powerSystems.FirstOrDefault(x => x.GetConnections().Any(x => powerSys.GetConnections().Contains(x)));
+                powerSystems.FirstOrDefault(x => x.GetConnections().Any(x1 => powerSys.GetConnections().Contains(x1)));
             if (connected != null && powerSys != connected)
             {
                 powerSys.SetConnections(powerSys.GetConnections().Union(connected.GetConnections()).ToHashSet());
