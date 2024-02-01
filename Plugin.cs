@@ -3,6 +3,7 @@ using TheElectrician.Libs.LocalizationManager;
 using TheElectrician.Libs.PieceManager;
 using TheElectrician.Models.Settings;
 using TheElectrician.Objects;
+using TheElectrician.Systems.Config;
 
 namespace TheElectrician;
 
@@ -11,13 +12,14 @@ public class Plugin : BaseUnityPlugin
 {
     private const string ModName = "TheElectrician",
         ModAuthor = "Frogger",
-        ModVersion = "0.1.1",
+        ModVersion = "0.1.0",
         ModGUID = $"com.{ModAuthor}.{ModName}";
 
     private void Awake()
     {
         CreateMod(this, ModName, ModAuthor, ModVersion, ModGUID);
-        OnConfigurationChanged += UpdateConfiguration;
+        TheConfig.Init();
+        OnConfigurationChanged += TheConfig.UpdateConfiguration;
 
         Localizer.Load();
         AddBuildPieces();
@@ -60,6 +62,4 @@ public class Plugin : BaseUnityPlugin
         woodStorage.Category.Set("TheElectrician");
         Library.Register("TE_woodenStorage", new StorageSettings(typeof(Storage), 100));
     }
-
-    private void UpdateConfiguration() { Debug("Configuration Received"); }
 }

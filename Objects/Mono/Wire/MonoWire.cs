@@ -1,5 +1,6 @@
 ﻿using TheElectrician.Models;
 using TheElectrician.Objects.Mono.Wire;
+using TheElectrician.Systems.Config;
 
 namespace TheElectrician.Objects.Mono;
 
@@ -80,7 +81,22 @@ public class MonoWire : ElectricMono, Hoverable, Interactable
         }
 
         wire.onConnectionsChanged.AddListener(UpdateCables);
-        InvokeRepeating(nameof(UpdateCables), 1, 1.5f);
+        StartCoroutine(UpdateCablesIEnumerator());
+    }
+
+    private IEnumerator UpdateCablesIEnumerator()
+    {
+        yield return new WaitForSeconds(TheConfig.WireUpdateCableInterval);
+        try
+        {
+            UpdateCables();
+        }
+        catch (Exception e)
+        {
+            DebugError($"Failed to update cables: {e}");
+        }
+
+        StartCoroutine(UpdateCablesIEnumerator());
     }
 
     private void UpdateCables()

@@ -39,6 +39,9 @@ public class MonoStorage : ElectricMono, Interactable
             sb.AppendLine($"Connected: {(connected.Count > 0 ? connected.GetString() : "none")}");
         }
 
+        if (storage.IsFull())
+            sb.AppendLine($"<color=#F448B2>${ModName}_storage_is_full </color>".Localize());
+
         sb.AppendLine();
         sb.AppendLine($"${ModName}_storage_capacity".Localize() + ": " + storage.GetCapacity());
         sb.AppendLine(StoredText(storage));

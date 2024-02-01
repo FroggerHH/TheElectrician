@@ -51,11 +51,7 @@ public class Storage : ElectricObject, IStorage
 
     public bool Add(string key, float amount)
     {
-        if (!CanAdd(amount))
-        {
-            DebugError($"Can't add {amount} {key} to storage");
-            return false;
-        }
+        if (!CanAdd(amount)) return false;
 
         if (cashedStored.ContainsKey(key))
             cashedStored[key] += amount;

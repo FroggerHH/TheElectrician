@@ -114,9 +114,10 @@
         <Compile Include="Patch\GameStartEnd.cs"/>
         <Compile Include="Patch\HandleObjectsCreation.cs"/>
         <Compile Include="Patch\HandleObjectsDeletion.cs"/>
-        <Compile Include="Patch\LoadWorldEOs.cs" />
+        <Compile Include="Patch\LoadWorldEOs.cs"/>
         <Compile Include="Plugin.cs"/>
         <Compile Include="Properties\AssemblyInfo.cs"/>
+        <Compile Include="Systems\Config\TheConfig.cs"/>
         <Compile Include="Systems\EOLifeHandler.cs"/>
         <Compile Include="Systems\EOPool.cs"/>
         <Compile Include="Systems\Library.cs"/>

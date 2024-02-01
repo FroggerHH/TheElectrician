@@ -40,15 +40,12 @@ public class Generator : Storage, IGenerator
     {
         base.Update();
         if (!HasFuel()) return;
-        Debug($"Generator update 1");
 
         var powerPerTick = GetPowerPerTick();
         var fuelPerTick = GetFuelPerTick();
+
         if (!CanAdd(powerPerTick))
-        {
-            Debug($"Generator {GetZDO()} is full of power");
             return;
-        }
 
         if (!RemoveFuel(fuelPerTick))
         {
@@ -65,11 +62,7 @@ public class Generator : Storage, IGenerator
 
     public bool IsActive() { return GetZDO()?.GetBool(ZDOVars.s_enabled, true) ?? true; }
 
-    public bool HasFuel()
-    {
-        Debug($"fuel stored: {GetFuelStored()}, fuel per tick: {GetFuelPerTick()}");
-        return GetFuelStored() >= GetFuelPerTick();
-    }
+    public bool HasFuel() { return GetFuelStored() >= GetFuelPerTick(); }
 
     public bool AddFuel(float amount) { return Add(GetFuelItem(), amount); }
 
