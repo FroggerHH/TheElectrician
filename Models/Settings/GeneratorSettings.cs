@@ -7,9 +7,10 @@ public class GeneratorSettings : StorageSettings
     public readonly int maxFuel;
     public readonly float powerPerTick;
 
-    public GeneratorSettings(Type type, int capacity,
-        float powerPerTick, string fuelItem, float fuelPerTick, int maxFuel, bool storeOnlyPower = false)
-        : base(type, capacity, storeOnlyPower)
+    public GeneratorSettings(Type type, int startLevel, int maxLevel, int powerLossPercentage, float conductivity,
+        int maxConnections,
+        int capacity, float powerPerTick, string fuelItem, float fuelPerTick, int maxFuel, bool storeOnlyPower = false)
+        : base(type, startLevel, maxLevel, conductivity, powerLossPercentage, maxConnections, capacity, storeOnlyPower)
     {
         this.powerPerTick = powerPerTick;
         this.fuelItem = fuelItem;
@@ -19,7 +20,7 @@ public class GeneratorSettings : StorageSettings
 
     public override string ToString()
     {
-        return $"Settings: type={type.Name} "
+        return $"{base.ToString()} "
                + $"fuelItem={fuelItem} "
                + $"fuelPerTick={fuelPerTick} "
                + $"maxFuel={maxFuel} "

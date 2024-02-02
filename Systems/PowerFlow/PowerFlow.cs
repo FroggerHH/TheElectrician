@@ -2,7 +2,7 @@
 using TheElectrician.Objects;
 using TheElectrician.Systems.Config;
 
-namespace TheElectrician.Systems;
+namespace TheElectrician.Systems.PowerFlow;
 
 public static class PowerFlow
 {

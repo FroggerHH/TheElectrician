@@ -1,4 +1,6 @@
-﻿namespace TheElectrician.Patch;
+﻿using TheElectrician.Systems.PowerFlow;
+
+namespace TheElectrician.Patch;
 
 [HarmonyPatch(typeof(Game))] [HarmonyWrapSafe] [UsedImplicitly]
 file static class GameStartEnd

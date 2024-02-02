@@ -41,7 +41,7 @@ public class Plugin : BaseUnityPlugin
         coalGenerator.RequiredItems.Add("SurtlingCore", 4, true);
         coalGenerator.Category.Set("TheElectrician");
         Library.Register("TE_coalGenerator", new GeneratorSettings(
-            typeof(Generator), 150, 1.5f, "Coal", 0.41f, 100));
+            typeof(Generator), 1, 1, 15, 32, 2, 150, 1.5f, "Coal", 0.41f, 100));
 
         BuildPiece woodWire = new(bundle, "TE_woodWire");
         woodWire.Name.English("Wooden wire fastening");
@@ -50,7 +50,7 @@ public class Plugin : BaseUnityPlugin
         woodWire.Description.Russian("Позволяет соединять объекты проводами. Передаёт 32 EU в тик.");
         woodWire.RequiredItems.Add("Wood", 1, true);
         woodWire.Category.Set("TheElectrician");
-        Library.Register("TE_woodWire", new WireSettings(typeof(Wire), 32f));
+        Library.Register("TE_woodWire", new WireSettings(typeof(Wire), 1, 1, 32f, 5f, 4));
 
         BuildPiece woodStorage = new(bundle, "TE_woodenStorage");
         woodStorage.Name.English("Wooden power storage");
@@ -60,6 +60,6 @@ public class Plugin : BaseUnityPlugin
         woodStorage.RequiredItems.Add("Wood", 60, true);
         woodStorage.RequiredItems.Add("Resin", 35, true);
         woodStorage.Category.Set("TheElectrician");
-        Library.Register("TE_woodenStorage", new StorageSettings(typeof(Storage), 100));
+        Library.Register("TE_woodenStorage", new StorageSettings(typeof(Storage), 1, 1, 32f, 10f, 3, 100));
     }
 }

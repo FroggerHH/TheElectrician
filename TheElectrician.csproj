@@ -11,7 +11,7 @@
         <AssemblyName>TheElectrician</AssemblyName>
         <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
-        <LangVersion>11</LangVersion>
+        <LangVersion>latest</LangVersion>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -92,15 +92,19 @@
         <Compile Include="Libs\PieceManager\PieceManager.cs"/>
         <Compile Include="Models\IElectricObject.cs"/>
         <Compile Include="Models\IGenerator.cs"/>
+        <Compile Include="Models\ILevelable.cs" />
         <Compile Include="Models\IStorage.cs"/>
         <Compile Include="Models\IWire.cs"/>
         <Compile Include="Models\IWireConnectable.cs"/>
         <Compile Include="Models\Settings\ElectricObjectSettings.cs"/>
         <Compile Include="Models\Settings\GeneratorSettings.cs"/>
+        <Compile Include="Models\Settings\LevelableSettings.cs" />
         <Compile Include="Models\Settings\StorageSettings.cs"/>
+        <Compile Include="Models\Settings\WireConnectableSettings.cs" />
         <Compile Include="Models\Settings\WireSettings.cs"/>
         <Compile Include="Objects\ElectricObject.cs"/>
         <Compile Include="Objects\Generator.cs"/>
+        <Compile Include="Objects\Levelable.cs" />
         <Compile Include="Objects\Mono\ElectricMono.cs"/>
         <Compile Include="Objects\Mono\MonoGenerator.cs"/>
         <Compile Include="Objects\Mono\MonoStorage.cs"/>
@@ -110,6 +114,7 @@
         <Compile Include="Objects\PowerSystem.cs"/>
         <Compile Include="Objects\Storage.cs"/>
         <Compile Include="Objects\Wire.cs"/>
+        <Compile Include="Objects\WireConnectable.cs" />
         <Compile Include="Patch\FinishPieces.cs"/>
         <Compile Include="Patch\GameStartEnd.cs"/>
         <Compile Include="Patch\HandleObjectsCreation.cs"/>
@@ -121,7 +126,8 @@
         <Compile Include="Systems\EOLifeHandler.cs"/>
         <Compile Include="Systems\EOPool.cs"/>
         <Compile Include="Systems\Library.cs"/>
-        <Compile Include="Systems\PowerFlow.cs"/>
+        <Compile Include="Systems\PowerFlow\PathFinder.cs" />
+        <Compile Include="Systems\PowerFlow\PowerFlow.cs" />
         <Compile Include="Systems\Updater.cs"/>
     </ItemGroup>
     <ItemGroup>

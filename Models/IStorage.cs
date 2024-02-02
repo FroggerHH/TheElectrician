@@ -1,15 +1,15 @@
-﻿namespace TheElectrician.Models;
+﻿using UnityEngine.Events;
+
+namespace TheElectrician.Models;
 
 public interface IStorage : IWireConnectable
 {
+    UnityEvent onStorageChanged { get; }
     Dictionary<string, float> GetStored();
     void SetStored(string key, float stored);
     bool Add(string key, float amount);
     bool Remove(string key, float amount);
     int GetCapacity();
-    void SetCapacity(int capacity);
-    void AddCapacity(int capacity);
-    void RemoveCapacity(int capacity);
     bool IsFull();
     bool IsEmpty();
     void Clear();
