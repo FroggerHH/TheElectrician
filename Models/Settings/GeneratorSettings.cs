@@ -7,10 +7,10 @@ public class GeneratorSettings : StorageSettings
     public readonly int maxFuel;
     public readonly float powerPerTick;
 
-    public GeneratorSettings(Type type, int startLevel, int maxLevel, int powerLossPercentage, float conductivity,
+    public GeneratorSettings(Type type, int startLevel, int maxLevel, int powerLoss, float conductivity,
         int maxConnections,
         int capacity, float powerPerTick, string fuelItem, float fuelPerTick, int maxFuel, bool storeOnlyPower = false)
-        : base(type, startLevel, maxLevel, conductivity, powerLossPercentage, maxConnections, capacity, storeOnlyPower)
+        : base(type, startLevel, maxLevel, conductivity, powerLoss, maxConnections, capacity, storeOnlyPower)
     {
         this.powerPerTick = powerPerTick;
         this.fuelItem = fuelItem;

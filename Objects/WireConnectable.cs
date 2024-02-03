@@ -30,6 +30,8 @@ public abstract class WireConnectable : Levelable, IWireConnectable
         onConnectionsChanged = new UnityEvent();
     }
 
+    public float GetPowerLoss() => wireConnectableSettings.powerLoss;
+
     public virtual HashSet<IWireConnectable> GetConnections()
     {
         if (IsValid() == false) return cashedConnections;
@@ -73,7 +75,7 @@ public abstract class WireConnectable : Levelable, IWireConnectable
 
     public virtual bool CanConnectOnlyToWires() => false;
 
-    public virtual int MaxConnections() => wireConnectableSettings.maxConnections;
+    public virtual int GetMaxConnections() => wireConnectableSettings.maxConnections;
 
     public bool CanConnect(IWireConnectable connectable)
     {
@@ -81,7 +83,7 @@ public abstract class WireConnectable : Levelable, IWireConnectable
         if (cashedConnections.Contains(connectable)) return false;
 
         if (CanConnectOnlyToWires() && connectable is not Wire) return false;
-        if (cashedConnections.Count >= MaxConnections()) return false;
+        if (cashedConnections.Count >= GetMaxConnections()) return false;
 
         return true;
     }

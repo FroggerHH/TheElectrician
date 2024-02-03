@@ -8,7 +8,7 @@ public class MonoGenerator : ElectricMono, Hoverable, Interactable
     private GameObject enabledVisual;
     private GameObject itemPreview;
     private float m_lastUseTime;
-    public IGenerator generator { get; private set; }
+    private IGenerator generator { get; set; }
 
     public override string GetHoverText()
     {
@@ -62,7 +62,7 @@ public class MonoGenerator : ElectricMono, Hoverable, Interactable
             return false;
         }
 
-        var addResult = generator.Add(fuelItemPrefabName, 1);
+        var addResult = generator.AddFuel(1);
         if (addResult) user.GetInventory().RemoveItem(fuelItem, 1);
         return addResult;
     }
@@ -78,7 +78,7 @@ public class MonoGenerator : ElectricMono, Hoverable, Interactable
             return false;
         }
 
-        var addResult = generator.Add(fuelItemPrefabName, 1);
+        var addResult = generator.AddFuel(1);
         if (addResult) user.GetInventory().RemoveItem(fuelItem, 1);
         return addResult;
     }

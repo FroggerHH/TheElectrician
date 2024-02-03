@@ -41,7 +41,7 @@ public class ElectricObject : IElectricObject
 
         if (this is IWireConnectable wireConnectable)
         {
-            List<IWireConnectable> connections = new();
+            List<IWireConnectable> connections = [];
             foreach (var connection in wireConnectable.GetConnections()) connections.Add(connection);
             Debug($"Reset {wireConnectable?.ToString() ?? "null"}, "
                   + $"connections: {wireConnectable.GetConnections().GetString()}");
@@ -56,5 +56,5 @@ public class ElectricObject : IElectricObject
         isValid = true;
     }
 
-    internal void SetId(Guid id) { GetZDO().Set(Consts.electricObjectIdKey, id.ToString()); }
+    private void SetId(Guid id) { GetZDO().Set(Consts.electricObjectIdKey, id.ToString()); }
 }

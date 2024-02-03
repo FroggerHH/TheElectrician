@@ -5,7 +5,7 @@ namespace TheElectrician.Objects.Mono;
 
 public class MonoStorage : ElectricMono, Interactable
 {
-    public IStorage storage { get; private set; }
+    private IStorage storage { get; set; }
 
     public override void OnDestroy()
     {

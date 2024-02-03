@@ -1,4 +1,5 @@
-﻿using TheElectrician.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+using TheElectrician.Models;
 using TheElectrician.Objects.Mono.Wire;
 using TheElectrician.Systems.Config;
 using TheElectrician.Systems.PowerFlow;
@@ -8,7 +9,7 @@ namespace TheElectrician.Objects.Mono;
 public class MonoWire : ElectricMono, Hoverable, Interactable
 {
     private Transform cablesParent;
-    public IWire wire { get; private set; }
+    private IWire wire { get; set; }
 
     public override string GetHoverText()
     {
@@ -23,11 +24,11 @@ public class MonoWire : ElectricMono, Hoverable, Interactable
         }
 
         sb.AppendLine();
-        var powerInSystem = PowerFlow.GetPowerInSystem(wire);
-        if (powerInSystem != -1)
-            sb.AppendLine(string.Format($"${ModName}_power_in_system".Localize(), powerInSystem));
-        else
-            sb.AppendLine($"${ModName}_wire_out_of_power_system".Localize());
+        var powerSystem = PowerFlow.GetPowerSystem(wire);
+        sb.AppendLine(powerSystem is null
+            ? $"${ModName}_wire_out_of_power_system".Localize()
+            : string.Format($"${ModName}_power_in_system".Localize(), powerSystem.GetPowerStored()));
+
         sb.AppendLine($"[<color=yellow><b>E</b></color>] ${ModName}_wire_connect".Localize());
         sb.AppendLine($"[<color=yellow><b>$button_lshift + E</b></color>] ${ModName}_wire_disconnect"
             .Localize());
@@ -85,6 +86,7 @@ public class MonoWire : ElectricMono, Hoverable, Interactable
         StartCoroutine(UpdateCablesIEnumerator());
     }
 
+    [SuppressMessage("ReSharper", "FunctionRecursiveOnAllPaths")]
     private IEnumerator UpdateCablesIEnumerator()
     {
         yield return new WaitForSeconds(TheConfig.WireUpdateCableInterval);
@@ -125,8 +127,6 @@ public class MonoWire : ElectricMono, Hoverable, Interactable
             var second = Library.GetObject(connectedWire.GetId()) as IWireConnectable;
 
             cable.SetConnection(first, second);
-
-            //TODO: Attach cable on the CablesAttach
         }
     }
 

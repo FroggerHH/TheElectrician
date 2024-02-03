@@ -6,9 +6,9 @@ public class StorageSettings : WireConnectableSettings
     public readonly bool storeOnlyPower;
 
     public StorageSettings(
-        Type type, int startLevel, int maxLevel, float conductivity, float powerLossPercentage, int maxConnections,
+        Type type, int startLevel, int maxLevel, float conductivity, float powerLoss, int maxConnections,
         int capacity, bool storeOnlyPower = true)
-        : base(type, startLevel, maxLevel, conductivity, powerLossPercentage, maxConnections)
+        : base(type, startLevel, maxLevel, conductivity, powerLoss, maxConnections)
     {
         this.capacity = capacity;
         this.storeOnlyPower = storeOnlyPower;

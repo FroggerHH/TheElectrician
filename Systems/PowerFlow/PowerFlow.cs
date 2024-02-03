@@ -1,13 +1,14 @@
-﻿using TheElectrician.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+using TheElectrician.Models;
 using TheElectrician.Objects;
 using TheElectrician.Systems.Config;
 
 namespace TheElectrician.Systems.PowerFlow;
 
+[PublicAPI]
 public static class PowerFlow
 {
-    private static HashSet<PowerSystem> powerSystems = new();
-    private static PowerSystem currentPowerSys;
+    private static HashSet<PowerSystem> powerSystems = [];
 
     public static void Start()
     {
@@ -21,6 +22,7 @@ public static class PowerFlow
         GetPlugin().StopCoroutine(UpdateEnumerator());
     }
 
+    [SuppressMessage("ReSharper", "FunctionRecursiveOnAllPaths")]
     private static IEnumerator UpdateEnumerator()
     {
         yield return new WaitForSeconds(TheConfig.PowerTickTime);
@@ -55,18 +57,38 @@ public static class PowerFlow
                 foreach (var gen in generators)
                 {
                     //32 should be conductivity of the wire
-                    var toAdd = Clamp(Min(storage.FreeSpace(), gen.Count(Consts.storagePowerKey)), 0, 32);
+                    var toAdd = Min(storage.FreeSpace(), gen.Count(Consts.storagePowerKey));
                     if (toAdd == 0) continue;
+
+                    var path = PathFinder.FindBestPath(storage, gen);
+                    if (path.Count == 0) continue;
+                    toAdd = CalculatePower(toAdd, storage, gen, path);
+
                     gen.TransferTo(storage, Consts.storagePowerKey, toAdd);
                 }
             }
         }
     }
 
+    private static float CalculatePower(float initialPower, IWireConnectable start, IWireConnectable end,
+        HashSet<IWireConnectable> path)
+    {
+        var resultPower = initialPower;
+        foreach (var point in path)
+        {
+            resultPower = Clamp(initialPower, 0, point.GetConductivity());
+            resultPower *= 1 - (point.GetPowerLoss() / 100);
+            if (resultPower == 0) break;
+        }
+
+        // Debug($"Calculated {initialPower}->{resultPower} power from {start} to {end}. Path: {path.GetString()}");
+        return resultPower;
+    }
+
     private static void FormPowerSystems()
     {
         powerSystems.Clear();
-        currentPowerSys = null;
+        PowerSystem currentPowerSys;
         var allStorages = Library.GetAllObjects<Storage>();
         foreach (var storage in allStorages)
         {
@@ -74,7 +96,6 @@ public static class PowerFlow
             powerSystems.Add(currentPowerSys);
 
             GoThroughConnections(new HashSet<IWireConnectable> { storage });
-            currentPowerSys = null;
         }
 
         var connectedPowerSystems = new HashSet<PowerSystem>(powerSystems);
@@ -101,11 +122,6 @@ public static class PowerFlow
                 GoThroughConnections(electricObject.GetConnections());
             }
         }
-    }
-
-    public static float GetPowerInSystem(IWireConnectable element)
-    {
-        return GetPowerSystem(element)?.GetPowerStored() ?? -1;
     }
 
     public static PowerSystem GetPowerSystem(IWireConnectable element)

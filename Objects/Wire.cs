@@ -9,13 +9,6 @@ public class Wire : WireConnectable, IWire
 {
     private WireState state;
     private WireSettings wireSettings;
-    public UnityEvent onConnectionsChanged { get; private set; }
-
-    public override void InitData()
-    {
-        base.InitData();
-        onConnectionsChanged = new UnityEvent();
-    }
 
     public override void InitSettings(ElectricObjectSettings settings)
     {

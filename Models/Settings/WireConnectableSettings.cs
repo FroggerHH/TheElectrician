@@ -3,14 +3,14 @@
 public class WireConnectableSettings : LevelableSettings
 {
     public readonly float conductivity;
-    public readonly float powerLossPercentage;
+    public readonly float powerLoss;
     public int maxConnections;
 
     public WireConnectableSettings(Type type, int startLevel, int maxLevel, float conductivity,
-        float powerLossPercentage, int maxConnections) : base(type, startLevel, maxLevel)
+        float powerLoss, int maxConnections) : base(type, startLevel, maxLevel)
     {
         this.conductivity = conductivity;
-        this.powerLossPercentage = powerLossPercentage;
+        this.powerLoss = powerLoss;
         this.maxConnections = maxConnections;
     }
 
@@ -20,7 +20,7 @@ public class WireConnectableSettings : LevelableSettings
                + $"maxLevel={maxLevel} "
                + $"startLevel={startLevel} "
                + $"conductivity={conductivity} "
-               + $"powerLossPercentage={powerLossPercentage} "
+               + $"powerLoss={powerLoss} "
                + $"maxConnections={maxConnections}";
     }
 }

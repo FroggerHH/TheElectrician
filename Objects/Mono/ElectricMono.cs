@@ -2,9 +2,9 @@
 
 public abstract class ElectricMono : MonoBehaviour, Hoverable
 {
-    private static readonly List<ElectricMono> all = new();
-    public ZNetView netView { get; private set; }
-    public Piece piece { get; private set; }
+    private static readonly List<ElectricMono> all = [];
+    protected ZNetView netView { get; private set; }
+    protected Piece piece { get; private set; }
 
     public virtual void OnDestroy() { all.Remove(this); }
     public abstract string GetHoverText();
