@@ -31,7 +31,7 @@ public class MonoGenerator : ElectricMono, Hoverable, Interactable
         sb.AppendLine($"[<color=yellow><b>$KEY_Use</b></color>] $piece_smelter_add {fuelItemName}".Localize());
         sb.AppendLine($"${ModName}_storage_capacity".Localize() + ": " + generator.GetCapacity());
 
-        if (!generator.CanAdd(generator.GetPowerPerTick()))
+        if (!generator.CanAdd(Consts.storagePowerKey,generator.GetPowerPerTick()))
             sb.AppendLine($"<color=#F448B2>${ModName}_generator_is_full  </color>".Localize());
 
         //Fuel item

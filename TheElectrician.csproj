@@ -90,18 +90,24 @@
         <Compile Include="GlobalUsings.cs"/>
         <Compile Include="Libs\LocalizationManager\LocalizationManager.cs"/>
         <Compile Include="Libs\PieceManager\PieceManager.cs"/>
+        <Compile Include="Models\IFurnace.cs" />
         <Compile Include="Models\IElectricObject.cs"/>
         <Compile Include="Models\IGenerator.cs"/>
         <Compile Include="Models\ILevelable.cs" />
         <Compile Include="Models\IStorage.cs"/>
         <Compile Include="Models\IWire.cs"/>
         <Compile Include="Models\IWireConnectable.cs"/>
+        <Compile Include="Models\Settings\ConsumerSettings.cs" />
         <Compile Include="Models\Settings\ElectricObjectSettings.cs"/>
         <Compile Include="Models\Settings\GeneratorSettings.cs"/>
         <Compile Include="Models\Settings\LevelableSettings.cs" />
+        <Compile Include="Models\Settings\FurnaceSettings.cs" />
         <Compile Include="Models\Settings\StorageSettings.cs"/>
         <Compile Include="Models\Settings\WireConnectableSettings.cs" />
         <Compile Include="Models\Settings\WireSettings.cs"/>
+        <Compile Include="Objects\Consumers\Furnace\Furnace.cs" />
+        <Compile Include="Objects\Consumers\Furnace\FurnaceRecipe.cs" />
+        <Compile Include="Objects\Consumers\Furnace\FurnaceState.cs" />
         <Compile Include="Objects\ElectricObject.cs"/>
         <Compile Include="Objects\Generator.cs"/>
         <Compile Include="Objects\Levelable.cs" />
@@ -111,7 +117,6 @@
         <Compile Include="Objects\Mono\Wire\Cable.cs"/>
         <Compile Include="Objects\Mono\Wire\MonoWire.cs"/>
         <Compile Include="Objects\Mono\Wire\WireState.cs"/>
-        <Compile Include="Objects\PowerSystem.cs"/>
         <Compile Include="Objects\Storage.cs"/>
         <Compile Include="Objects\Wire.cs"/>
         <Compile Include="Objects\WireConnectable.cs" />
@@ -128,6 +133,7 @@
         <Compile Include="Systems\Library.cs"/>
         <Compile Include="Systems\PowerFlow\PathFinder.cs" />
         <Compile Include="Systems\PowerFlow\PowerFlow.cs" />
+        <Compile Include="Systems\PowerFlow\PowerSystem.cs" />
         <Compile Include="Systems\Updater.cs"/>
     </ItemGroup>
     <ItemGroup>

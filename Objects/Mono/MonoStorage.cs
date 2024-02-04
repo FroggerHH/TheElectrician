@@ -59,7 +59,9 @@ public class MonoStorage : ElectricMono, Interactable
         foreach (var itemPair in currentStored)
         {
             var prefabName = itemPair.Key;
-            var count = itemPair.Value;
+            float count = RoundToInt(itemPair.Value);
+            //Show 0 if less than Consts.minPower
+            count = Max(count, Consts.minPower);
             if (!prefabName.IsGood()) continue;
             string itemName;
             if (prefabName == Consts.storagePowerKey)

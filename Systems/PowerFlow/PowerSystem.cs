@@ -1,6 +1,6 @@
 ﻿using TheElectrician.Models;
 
-namespace TheElectrician.Objects;
+namespace TheElectrician.Systems.PowerFlow;
 
 public class PowerSystem
 {

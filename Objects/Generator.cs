@@ -25,7 +25,7 @@ public class Generator : Storage, IGenerator
         var powerPerTick = GetPowerPerTick();
         var fuelPerTick = GetFuelPerTick();
 
-        if (!CanAdd(powerPerTick))
+        if (!CanAdd(Consts.storagePowerKey, powerPerTick))
             return;
 
         if (!RemoveFuel(fuelPerTick))

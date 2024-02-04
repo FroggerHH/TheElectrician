@@ -1,20 +1,12 @@
 ﻿namespace TheElectrician.Models.Settings;
 
-public class LevelableSettings : ElectricObjectSettings
+public class LevelableSettings(Type type, int startLevel, int maxLevel) : ElectricObjectSettings(type)
 {
-    public readonly int startLevel;
-    public readonly int maxLevel;
+    public readonly int startLevel = startLevel;
+    public readonly int maxLevel = maxLevel;
 
-    public LevelableSettings(Type type, int startLevel, int maxLevel) : base(type)
-    {
-        this.startLevel = startLevel;
-        this.maxLevel = maxLevel;
-    }
-
-    public override string ToString()
-    {
-        return $"{base.ToString()} "
-               + $"maxLevel={maxLevel} "
-               + $"startLevel={startLevel}";
-    }
+    public override string ToString() =>
+        $"{base.ToString()} "
+        + $"maxLevel={maxLevel} "
+        + $"startLevel={startLevel}";
 }

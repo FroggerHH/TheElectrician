@@ -51,7 +51,7 @@ public class Storage : WireConnectable, IStorage
 
     public bool Add(string key, float amount)
     {
-        if (!CanAdd(amount)) return false;
+        if (!CanAdd(key, amount)) return false;
 
         if (cashedStored.ContainsKey(key))
             cashedStored[key] += amount;
@@ -80,10 +80,10 @@ public class Storage : WireConnectable, IStorage
     public bool IsFull()
     {
         var capacity = GetCapacity();
-        return cashedStored.Sum(x => x.Value) >= capacity;
+        return cashedStored.Sum(x => x.Value) >= capacity - Consts.minPower;
     }
 
-    public bool IsEmpty() { return cashedStored.Sum(x => x.Value) == 0; }
+    public bool IsEmpty() { return cashedStored.Sum(x => x.Value) <= Consts.minPower; }
 
     public void Clear()
     {
@@ -91,7 +91,7 @@ public class Storage : WireConnectable, IStorage
         UpdateCurrentStored();
     }
 
-    public bool CanAdd(float amount)
+    public virtual bool CanAdd(string key, float amount)
     {
         if (amount < 0)
         {
@@ -105,10 +105,13 @@ public class Storage : WireConnectable, IStorage
             return false;
         }
 
+        if (!GetAllowedKeys().Contains(key))
+            return false;
+
         return cashedStored.Sum(x => x.Value) + amount <= GetCapacity();
     }
 
-    public bool CanRemove(string key, float amount)
+    public virtual bool CanRemove(string key, float amount)
     {
         if (amount < 0)
         {
@@ -130,11 +133,13 @@ public class Storage : WireConnectable, IStorage
 
     public float FreeSpace() { return GetCapacity() - cashedStored.Sum(x => x.Value); }
 
+    public virtual string[] GetAllowedKeys() => storageSettings.allowedKeys;
+
     public float Count(string key) { return cashedStored.TryGetValue(key, out var current) ? current : 0; }
 
     public bool TransferTo(IStorage otherStorage, string key, float amount)
     {
-        if (otherStorage.CanAdd(amount) && Remove(key, amount))
+        if (otherStorage.CanAdd(key, amount) && Remove(key, amount))
         {
             otherStorage.Add(key, amount);
             return true;
@@ -145,7 +150,7 @@ public class Storage : WireConnectable, IStorage
 
     public bool GetFrom(IStorage otherStorage, string key, float amount)
     {
-        if (otherStorage.CanRemove(key, amount) && CanAdd(amount))
+        if (otherStorage.CanRemove(key, amount) && CanAdd(key, amount))
         {
             Add(key, amount);
             return true;
@@ -154,7 +159,7 @@ public class Storage : WireConnectable, IStorage
         return false;
     }
 
-    public bool GetFrom(ZDO container, string key, int amount) { throw new NotImplementedException(); }
+    public virtual bool GetFrom(ZDO container, string key, int amount) { throw new NotImplementedException(); }
 
     public override bool CanConnectOnlyToWires() => true;
 

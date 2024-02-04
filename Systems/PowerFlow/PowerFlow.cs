@@ -56,13 +56,12 @@ public static class PowerFlow
                 if (storage.IsFull()) continue;
                 foreach (var gen in generators)
                 {
-                    //32 should be conductivity of the wire
                     var toAdd = Min(storage.FreeSpace(), gen.Count(Consts.storagePowerKey));
                     if (toAdd == 0) continue;
 
                     var path = PathFinder.FindBestPath(storage, gen);
                     if (path.Count == 0) continue;
-                    toAdd = CalculatePower(toAdd, storage, gen, path);
+                    toAdd = CalculatePower(toAdd, path);
 
                     gen.TransferTo(storage, Consts.storagePowerKey, toAdd);
                 }
@@ -70,8 +69,7 @@ public static class PowerFlow
         }
     }
 
-    private static float CalculatePower(float initialPower, IWireConnectable start, IWireConnectable end,
-        HashSet<IWireConnectable> path)
+    private static float CalculatePower(float initialPower, HashSet<IWireConnectable> path)
     {
         var resultPower = initialPower;
         foreach (var point in path)
@@ -81,7 +79,7 @@ public static class PowerFlow
             if (resultPower == 0) break;
         }
 
-        // Debug($"Calculated {initialPower}->{resultPower} power from {start} to {end}. Path: {path.GetString()}");
+        Debug($"Calculated {initialPower}->{resultPower} power.");
         return resultPower;
     }
 

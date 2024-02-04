@@ -1,18 +1,17 @@
 ﻿namespace TheElectrician.Models.Settings;
 
-public class WireConnectableSettings : LevelableSettings
+public class WireConnectableSettings(
+    Type type,
+    int startLevel,
+    int maxLevel,
+    float conductivity,
+    float powerLoss,
+    int maxConnections)
+    : LevelableSettings(type, startLevel, maxLevel)
 {
-    public readonly float conductivity;
-    public readonly float powerLoss;
-    public int maxConnections;
-
-    public WireConnectableSettings(Type type, int startLevel, int maxLevel, float conductivity,
-        float powerLoss, int maxConnections) : base(type, startLevel, maxLevel)
-    {
-        this.conductivity = conductivity;
-        this.powerLoss = powerLoss;
-        this.maxConnections = maxConnections;
-    }
+    public readonly float conductivity = conductivity;
+    public readonly float powerLoss = powerLoss;
+    public int maxConnections = maxConnections;
 
     public override string ToString()
     {

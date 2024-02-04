@@ -13,9 +13,10 @@ public interface IStorage : IWireConnectable
     bool IsFull();
     bool IsEmpty();
     void Clear();
-    bool CanAdd(float amount);
+    bool CanAdd(string key, float amount);
     bool CanRemove(string key, float amount);
     float FreeSpace();
+    string[] GetAllowedKeys();
 
     float Count(string key);
     bool TransferTo(IStorage otherStorage, string key, float amount);

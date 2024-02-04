@@ -1,4 +1,5 @@
-﻿using TheElectrician.Systems.Config;
+﻿using System.Diagnostics.CodeAnalysis;
+using TheElectrician.Systems.Config;
 
 namespace TheElectrician.Systems;
 
@@ -34,6 +35,7 @@ internal static class Updater
         foreach (var obj in enumerable) obj.Update();
     }
 
+    [SuppressMessage("ReSharper", "FunctionRecursiveOnAllPaths")]
     private static IEnumerator UpdateEnumerator()
     {
         yield return new WaitForSeconds(TheConfig.ObjectTickTime);
