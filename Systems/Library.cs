@@ -37,7 +37,8 @@ public static class Library
 
     public static bool IsEO(string prefab) { return IsEO(prefab.GetStableHashCode()); }
 
-    public static bool IsEO(int prefab) { return settingsMap.ContainsKey(prefab); }
+    public static bool IsEO(int prefab) => settingsMap.ContainsKey(prefab);
+
     public static bool IsEO(GameObject go) { return IsEO(go.GetPrefabName()); }
     public static bool IsEO(Component go) { return IsEO(go.gameObject); }
 

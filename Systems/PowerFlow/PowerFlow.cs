@@ -51,6 +51,7 @@ public static class PowerFlow
                 .ToList();
 
             if (storages.Count == 0 || generators.Count == 0) continue;
+            HashSet<IWire> usedWires = new();
             foreach (var storage in storages)
             {
                 if (storage.IsFull()) continue;
@@ -59,7 +60,10 @@ public static class PowerFlow
                     var toAdd = Min(storage.FreeSpace(), gen.Count(Consts.storagePowerKey));
                     if (toAdd == 0) continue;
 
-                    var path = PathFinder.FindBestPath(storage, gen);
+                    var path = PathFinder.FindBestPath(storage, gen, usedWires);
+                    var wires = path.OfType<IWire>();
+                    foreach (var wire in wires) usedWires.Add(wire);
+
                     if (path.Count == 0) continue;
                     toAdd = CalculatePower(toAdd, path);
 
@@ -69,7 +73,7 @@ public static class PowerFlow
         }
     }
 
-    private static float CalculatePower(float initialPower, HashSet<IWireConnectable> path)
+    public static float CalculatePower(float initialPower, HashSet<IWireConnectable> path)
     {
         var resultPower = initialPower;
         foreach (var point in path)
@@ -79,7 +83,7 @@ public static class PowerFlow
             if (resultPower == 0) break;
         }
 
-        Debug($"Calculated {initialPower}->{resultPower} power.");
+        // Debug($"Calculated {initialPower}->{resultPower} power.");
         return resultPower;
     }
 

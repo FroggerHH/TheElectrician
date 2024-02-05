@@ -37,8 +37,7 @@ internal static class EOLifeHandler
     public static void DestroyEO(ZDO zdo)
     {
         var eo = GetObject(zdo);
-        if (eo != null)
-            DestroyEO(eo);
+        if (eo != null) DestroyEO(eo);
     }
 
     internal static List<IElectricObject> GetAllObjects() { return new List<IElectricObject>(m_eoByID.Values); }
@@ -50,7 +49,11 @@ internal static class EOLifeHandler
 
     internal static ElectricObject GetObject(Guid id) { return m_eoByID.TryGetValue(id, out var eo) ? eo : null; }
 
-    internal static ElectricObject GetObject(ZDO zdo) { return m_eoByZdo.TryGetValue(zdo, out var eo) ? eo : null; }
+    internal static ElectricObject GetObject(ZDO zdo)
+    {
+        if (zdo is null) return null;
+        return m_eoByZdo.TryGetValue(zdo, out var eo) ? eo : null;
+    }
 
     internal static void Clear()
     {

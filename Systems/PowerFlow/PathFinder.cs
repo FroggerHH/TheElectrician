@@ -4,8 +4,10 @@ namespace TheElectrician.Systems.PowerFlow;
 
 internal static class PathFinder
 {
-    public static HashSet<IWireConnectable> FindBestPath(IWireConnectable start, IWireConnectable end)
+    public static HashSet<IWireConnectable> FindBestPath(IWireConnectable start, IWireConnectable end,
+        HashSet<IWire> ignoreWires = null)
     {
+        ignoreWires ??= [];
         Dictionary<IWireConnectable, float> distances = new();
         Dictionary<IWireConnectable, IWireConnectable> previousNodes = new();
         HashSet<IWireConnectable> unvisitedNodes = [];
@@ -26,6 +28,7 @@ internal static class PathFinder
 
             foreach (var neighbor in currentNode.GetConnections())
             {
+                if (ignoreWires.Contains(neighbor)) continue;
                 var alt = distances[currentNode] + GetWeight(neighbor);
                 if (!distances.ContainsKey(neighbor) || alt < distances[neighbor])
                 {

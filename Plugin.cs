@@ -47,27 +47,27 @@ public class Plugin : BaseUnityPlugin
             1.5f, "Coal", 0.41f, 100));
 
         BuildPiece stoneFurnace = new(bundle, "TE_stoneFurnace");
-        stoneFurnace.Name.English("Electric Furnace [Stone Level]");
-        stoneFurnace.Name.Russian("Электрическая печь [Уровень Камень]");
+        stoneFurnace.Name.English("Electric Furnace");
+        stoneFurnace.Name.Russian("Электрическая печь");
         stoneFurnace.Description.English("Uses electricity to melt ore and make coal");
         stoneFurnace.Description.Russian("Использует электричество для плавки руды и изготовления угля");
         stoneFurnace.RequiredItems.Add("Stone", 40, false);
         stoneFurnace.RequiredItems.Add("FineWood", 5, true);
-        stoneFurnace.RequiredItems.Add("CoreWood", 30, true);
+        stoneFurnace.RequiredItems.Add("RoundLog", 30, true);
         stoneFurnace.RequiredItems.Add("SurtlingCore", 20, true);
         stoneFurnace.Category.Set("TheElectrician");
-        Library.Register("TE_stoneSmelter", new FurnaceSettings(
-            typeof(Furnace), 2, 2, 32, 15, 2, 150));
+        Library.Register("TE_stoneFurnace", new FurnaceSettings(
+            typeof(Furnace), 1, 1, 32, 15, 2, 150));
 
         BuildPiece woodWire = new(bundle, "TE_woodWire");
-        woodWire.Name.English("Wooden wire fastening");
-        woodWire.Name.Russian("Деревянное крепление провода");
+        woodWire.Name.English("Wire fastening");
+        woodWire.Name.Russian("Крепление провода");
         woodWire.Description.English("Allows connecting objects with wires. Conducts 32 EU per tick.");
         woodWire.Description.Russian("Позволяет соединять объекты проводами. Передаёт 32 EU в тик.");
         woodWire.RequiredItems.Add("Wood", 1, true);
         woodWire.Category.Set("TheElectrician");
         Library.Register("TE_woodWire",
-            new WireSettings(typeof(Wire), 1, 1, 32f, 5f, 4));
+            new WireSettings(typeof(Wire), 0, 0, 32f, 5f, 4));
 
         BuildPiece woodStorage = new(bundle, "TE_woodenStorage");
         woodStorage.Name.English("Wooden power storage");
@@ -78,6 +78,6 @@ public class Plugin : BaseUnityPlugin
         woodStorage.RequiredItems.Add("Resin", 35, true);
         woodStorage.Category.Set("TheElectrician");
         Library.Register("TE_woodenStorage",
-            new StorageSettings(typeof(Storage), 1, 1, 32f, 10f, 3, 100, [Consts.storagePowerKey]));
+            new StorageSettings(typeof(Storage), 0, 0, 32f, 10f, 3, 100, [Consts.storagePowerKey]));
     }
 }

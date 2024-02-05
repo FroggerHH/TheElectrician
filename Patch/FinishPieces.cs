@@ -62,17 +62,15 @@ file static class FinishPieces
         FixShaders(stoneFurnacePiece);
         var smoke = stoneFurnacePiece.GetComponentInChildren<SmokeSpawner>(true);
         smoke.m_smokePrefab = prefab("charcoal_kiln").GetComponentInChildren<SmokeSpawner>(true).m_smokePrefab;
+        var guidePoint = stoneFurnacePiece.GetComponentInChildren<GuidePoint>(true);
+        guidePoint.m_ravenPrefab = prefab("piece_workbench").GetComponentInChildren<GuidePoint>(true).m_ravenPrefab;
         stoneFurnacePiece.gameObject.GetOrAddComponent<MonoFurnace>();
     }
 
     private static void FixShaders(Component obj)
     {
-        var renderers = obj.GetComponentsInChildren<Renderer>();
-        foreach (var ren in renderers)
-        {
-            Debug($"Fixing shader for {ren.name} in {obj.name}");
-            ren.material.shader = Shader.Find(ren.material.shader.name);
-        }
+        var renderers = obj.GetComponentsInChildren<Renderer>(true);
+        foreach (var ren in renderers) ren.material.shader = Shader.Find(ren.material.shader.name);
     }
 
     private static ItemDrop item(string name) { return prefab(name)?.GetComponent<ItemDrop>(); }

@@ -5,6 +5,8 @@ namespace TheElectrician.Models;
 public interface IStorage : IWireConnectable
 {
     UnityEvent onStorageChanged { get; }
+    UnityEvent<string, float> onItemAdded { get; }
+    UnityEvent<string, float>  onItemRemoved { get; }
     Dictionary<string, float> GetStored();
     void SetStored(string key, float stored);
     bool Add(string key, float amount);
@@ -17,6 +19,7 @@ public interface IStorage : IWireConnectable
     bool CanRemove(string key, float amount);
     float FreeSpace();
     string[] GetAllowedKeys();
+    bool CanAccept(string key);
 
     float Count(string key);
     bool TransferTo(IStorage otherStorage, string key, float amount);

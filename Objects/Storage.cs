@@ -7,6 +7,8 @@ namespace TheElectrician.Objects;
 public class Storage : WireConnectable, IStorage
 {
     public UnityEvent onStorageChanged { get; private set; }
+    public UnityEvent<string, float> onItemAdded { get; private set; }
+    public UnityEvent<string, float> onItemRemoved { get; private set; }
     private Dictionary<string, float> cashedStored = new();
     private StorageSettings storageSettings;
 
@@ -22,7 +24,9 @@ public class Storage : WireConnectable, IStorage
     {
         base.InitData();
         GetStored();
-        onStorageChanged = new UnityEvent();
+        onStorageChanged = new();
+        onItemAdded = new();
+        onItemRemoved = new();
     }
 
 
@@ -57,6 +61,7 @@ public class Storage : WireConnectable, IStorage
             cashedStored[key] += amount;
         else cashedStored.Add(key, amount);
 
+        onItemAdded?.Invoke(key, amount);
         UpdateCurrentStored();
         return true;
     }
@@ -71,6 +76,7 @@ public class Storage : WireConnectable, IStorage
 
         cashedStored[key] -= amount;
 
+        onItemRemoved?.Invoke(key, amount);
         UpdateCurrentStored();
         return true;
     }
@@ -105,8 +111,7 @@ public class Storage : WireConnectable, IStorage
             return false;
         }
 
-        if (!GetAllowedKeys().Contains(key))
-            return false;
+        if (!CanAccept(key)) return false;
 
         return cashedStored.Sum(x => x.Value) + amount <= GetCapacity();
     }
@@ -134,6 +139,8 @@ public class Storage : WireConnectable, IStorage
     public float FreeSpace() { return GetCapacity() - cashedStored.Sum(x => x.Value); }
 
     public virtual string[] GetAllowedKeys() => storageSettings.allowedKeys;
+
+    public bool CanAccept(string key) => GetAllowedKeys().Contains(key);
 
     public float Count(string key) { return cashedStored.TryGetValue(key, out var current) ? current : 0; }
 

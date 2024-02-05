@@ -1,11 +1,13 @@
 ﻿using TheElectrician.Models;
 using TheElectrician.Models.Settings;
+using TheElectrician.Systems.PowerFlow;
 using UnityEngine.Events;
 
 namespace TheElectrician.Objects.Consumers.Furnace;
 
 public class Furnace : Storage, IFurnace
 {
+    private float currentPower;
     private List<FurnaceRecipe> cachedRecipes;
     private string[] cachedAllowedKeys;
     private FurnaceSettings furnaceSettings;
@@ -17,7 +19,17 @@ public class Furnace : Storage, IFurnace
     public UnityEvent onProgressCompleted { get; private set; }
     public FurnaceState GetState() => state;
 
+    private void SetState(FurnaceState newState) => state = newState;
+
     public bool IsInWorkingState() => state == FurnaceState.Working;
+
+    public RangeInt GetProgress()
+    {
+        if (currentRecipe is null) return new RangeInt(0, 0);
+        return new RangeInt(ticksElapsed, currentRecipe.CalculateTicks(GetLevel()));
+    }
+
+    public FurnaceRecipe GetCurrentRecipe() => currentRecipe;
 
     public override void InitSettings(ElectricObjectSettings sett)
     {
@@ -30,37 +42,73 @@ public class Furnace : Storage, IFurnace
     public override void InitData()
     {
         base.InitData();
-        cachedRecipes = FurnaceRecipe.GetAllRecipes(GetLevel());
+        var level = GetLevel();
+        cachedRecipes = FurnaceRecipe.GetAllRecipes(level);
         cachedAllowedKeys = cachedRecipes.Select(x => x.output).Union(cachedRecipes.Select(x => x.input)).ToArray();
-        
+
         onProgressAdded = new();
         onProgressCompleted = new();
     }
+
+    public float GetPossiblePower() => currentPower;
 
     public override void Update()
     {
         base.Update();
         if (!IsValid()) return;
-        if (!IsInWorkingState())
+        currentPower = PowerFlow.GetPowerSystem(this)?.GetPossiblePowerInElement(this) ?? 0;
+        if (IsInWorkingState())
         {
             UpdateWorkingState();
             return;
         }
 
         if (IsFull()) return;
-
         currentRecipe = FindRecipe();
+        if (currentRecipe is not null)
+        {
+            SetState(FurnaceState.Working);
+            return;
+        }
     }
 
     private void UpdateWorkingState()
     {
+        if (!CanProduceRecipe(currentRecipe))
+        {
+            SetState(FurnaceState.Idle);
+            return;
+        }
+
         if (ticksElapsed < currentRecipe.CalculateTicks(GetLevel()))
         {
             AddProgress();
             return;
         }
-        //ProcessRecipe(currentRecipe);
+
+        Add(currentRecipe.output, currentRecipe.outputCount);
+        Remove(currentRecipe.input, currentRecipe.inputCount);
+        SetState(FurnaceState.Idle);
+        onProgressCompleted?.Invoke();
     }
+
+    private bool CanProduceRecipe(FurnaceRecipe recipe)
+    {
+        var enoughPower = HaveEnoughPower(recipe);
+        var canAdd = CanAdd(recipe.output, recipe.outputCount);
+        var canAddRemove = CanRemove(recipe.input, recipe.inputCount);
+
+        // Debug($"CanProduceRecipe ({recipe.input}->{recipe.output}) {canAdd} {canAddRemove} {enoughPower}");
+        return canAdd && canAddRemove && enoughPower;
+    }
+
+    public bool HaveEnoughPower() => HaveEnoughPower(currentRecipe);
+
+    public bool HaveEnoughPower(FurnaceRecipe recipe)
+    {
+        return currentPower >= (recipe?.CalculatePower(GetLevel()) ?? 0.001);
+    }
+
 
     private void AddProgress()
     {
@@ -68,20 +116,7 @@ public class Furnace : Storage, IFurnace
         onProgressAdded?.Invoke();
     }
 
-    private FurnaceRecipe FindRecipe()
-    {
-        foreach (var recipe in cachedRecipes)
-        {
-            if (!CanAdd(recipe.output, recipe.outputCount)) continue;
-            if (!CanRemove(recipe.input, recipe.inputCount)) continue;
-
-            return recipe;
-        }
-
-        return null;
-    }
-
-    public override bool CanAdd(string key, float amount) { return base.CanAdd(key, amount) && !IsInWorkingState(); }
+    private FurnaceRecipe FindRecipe() => cachedRecipes.FirstOrDefault(x => CanProduceRecipe(x));
 
     public override string[] GetAllowedKeys() => cachedAllowedKeys;
 }

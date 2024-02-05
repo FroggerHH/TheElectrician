@@ -8,7 +8,7 @@ public class MonoGenerator : ElectricMono, Hoverable, Interactable
     private GameObject enabledVisual;
     private GameObject itemPreview;
     private float m_lastUseTime;
-    private IGenerator generator { get; set; }
+    private IGenerator generator;
 
     public override string GetHoverText()
     {

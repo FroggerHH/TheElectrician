@@ -17,7 +17,9 @@ file class HandleObjectsCreation
         var electricMono = __instance.GetComponent<ElectricMono>();
         if (electricMono)
         {
+            // Debug($"Setting up {electricMono}");
             electricMono.SetUp();
+            // Debug($"Loading {electricMono}");
             electricMono.Load();
         }
     }
