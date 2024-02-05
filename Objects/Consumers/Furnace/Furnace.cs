@@ -89,6 +89,7 @@ public class Furnace : Storage, IFurnace
         Add(currentRecipe.output, currentRecipe.outputCount);
         Remove(currentRecipe.input, currentRecipe.inputCount);
         SetState(FurnaceState.Idle);
+        ticksElapsed = 0;
         onProgressCompleted?.Invoke();
     }
 
