@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using TheElectrician.Models;
 using TheElectrician.Objects;
+using TheElectrician.Objects.Consumers.Furnace;
 using TheElectrician.Systems.Config;
 
 namespace TheElectrician.Systems.PowerFlow;
@@ -129,5 +130,13 @@ public static class PowerFlow
     public static PowerSystem GetPowerSystem(IWireConnectable element)
     {
         return powerSystems.FirstOrDefault(x => x.ContainsConnection(element));
+    }
+
+    public static bool ConsumePower(IConsumer consumer, float amount)
+    {
+        var powerSys = GetPowerSystem(consumer as IWireConnectable);
+        if (powerSys == null) return false;
+        
+        return powerSys.ConsumePower(consumer, amount);
     }
 }

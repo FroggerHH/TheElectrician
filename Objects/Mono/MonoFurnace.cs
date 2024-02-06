@@ -16,6 +16,9 @@ public class MonoFurnace : ElectricMono, Hoverable, Interactable
     private Image progressBarFilled;
     private Image recipeOutputImage;
 
+    internal EffectList addEffect;
+    internal EffectList doneEffect;
+
     public override void SetUp()
     {
         base.SetUp();
@@ -55,7 +58,8 @@ public class MonoFurnace : ElectricMono, Hoverable, Interactable
         if (!netView.IsValid()) return;
         furnace = Library.GetObject(netView.GetZDO()) as IFurnace;
         if (furnace is null) return;
-        furnace.onProgressAdded.AddListener(OnProgressAdded);
+        furnace.onProgressStarted.AddListener(UpdateVisual);
+        furnace.onProgressChanged.AddListener(UpdateVisual);
         furnace.onProgressCompleted.AddListener(OnProgressCompleted);
 
         InvokeRepeating(nameof(UpdateVisual), 1.0f, 1.0f);
@@ -88,13 +92,7 @@ public class MonoFurnace : ElectricMono, Hoverable, Interactable
 
     private void OnProgressCompleted()
     {
-        //TODO: Some kind of animation or sfx
-        UpdateVisual();
-    }
-
-    private void OnProgressAdded()
-    {
-        //TODO: Some kind of animation or sfx
+        doneEffect?.Create(transform.position, Quaternion.identity);
         UpdateVisual();
     }
 
@@ -128,7 +126,13 @@ public class MonoFurnace : ElectricMono, Hoverable, Interactable
 
         if (item == null) return false;
 
-        return furnace.Add(item.m_dropPrefab.name, 1) && inventory.RemoveItem(item, 1);
+        var result = furnace.Add(item.m_dropPrefab.name, 1) && inventory.RemoveItem(item, 1);
+        if (result)
+            addEffect?.Create(transform.position, Quaternion.identity);
+        else
+            DebugError($"Furnace {gameObject.GetPrefabName()} can't add item {item.m_dropPrefab.name}. "
+                       + $"This should not happen");
+        return result;
     }
 
     public bool UseItem(Humanoid user, ItemData item)
@@ -155,7 +159,12 @@ public class MonoFurnace : ElectricMono, Hoverable, Interactable
             return false;
         }
 
-        return furnace.Add(item.m_dropPrefab.name, 1) && inventory.RemoveItem(item, 1);
+        var result = furnace.Add(item.m_dropPrefab.name, 1) && inventory.RemoveItem(item, 1);
+        if (result) addEffect?.Create(transform.position, Quaternion.identity);
+        else
+            DebugError($"Furnace {gameObject.GetPrefabName()} can't add item {item.m_dropPrefab.name}. "
+                       + $"This should not happen");
+        return result;
     }
 
     public override string GetHoverText()

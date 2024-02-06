@@ -29,8 +29,6 @@ public class Plugin : BaseUnityPlugin
 
     private void AddBuildPieces()
     {
-        //TODO: Add some consumers
-        //TODO: Add electric smelter
         LoadAssetBundle("theelectrician");
 
         BuildPiece coalGenerator = new(bundle, "TE_coalGenerator");

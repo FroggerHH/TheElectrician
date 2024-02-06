@@ -75,6 +75,7 @@ public class Storage : WireConnectable, IStorage
         }
 
         cashedStored[key] -= amount;
+        if (cashedStored[key] <= 0) cashedStored.Remove(key);
 
         onItemRemoved?.Invoke(key, amount);
         UpdateCurrentStored();
@@ -178,6 +179,7 @@ public class Storage : WireConnectable, IStorage
 
     private void UpdateCurrentStored()
     {
+        cashedStored = cashedStored.Where(x => x.Value > 0).ToDictionary(x => x.Key, x => x.Value);
         var join = string.Join(";", cashedStored.Select(x => $"{x.Key}:{x.Value}"));
         if (!IsValid()) return;
         onStorageChanged?.Invoke();

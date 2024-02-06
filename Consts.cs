@@ -1,11 +1,9 @@
-﻿using TheElectrician.Objects.Consumers;
-
-namespace TheElectrician;
+﻿namespace TheElectrician;
 
 public static class Consts
 {
     public static readonly string electricObjectIdKey = "ElectricObjectId";
-    public static readonly float minPower = 0.9f;
+    public static readonly float minPower = 0.05f;
 
     public static readonly string levelKey = "Level";
 

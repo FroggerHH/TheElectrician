@@ -1,5 +1,6 @@
 ﻿using TheElectrician.Models;
 using TheElectrician.Objects.Mono.Wire;
+using TheElectrician.Systems.Config;
 
 namespace TheElectrician.Objects.Mono;
 
@@ -59,9 +60,8 @@ public class MonoStorage : ElectricMono, Interactable
         foreach (var itemPair in currentStored)
         {
             var prefabName = itemPair.Key;
-            float count = RoundToInt(itemPair.Value);
+            var count = Math.Round(itemPair.Value, TheConfig.RoundingPrecision);
             //Show 0 if less than Consts.minPower
-            count = Max(count, Consts.minPower);
             if (!prefabName.IsGood()) continue;
             string itemName;
             if (prefabName == Consts.storagePowerKey)

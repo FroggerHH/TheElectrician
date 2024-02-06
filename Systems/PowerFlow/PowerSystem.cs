@@ -24,7 +24,7 @@ public class PowerSystem
 
         float power = 0;
 
-        var storages = connections.OfType<IStorage>();
+        var storages = GetStorages();
         var usedWires = new HashSet<IWire>();
         foreach (var storage in storages)
         {
@@ -37,5 +37,50 @@ public class PowerSystem
         }
 
         return power;
+    }
+
+    private List<IStorage> GetStorages() { return connections.OfType<IStorage>().ToList(); }
+
+    public bool ConsumePower(IConsumer consumer, float amount)
+    {
+        if (consumer is null) return false;
+
+        var asWireConn = consumer as IWireConnectable;
+        if (!ContainsConnection(asWireConn)) return false;
+
+        var storages = GetStorages();
+        var usedWires = new HashSet<IWire>();
+        var storagesWithPower = new Dictionary<IStorage, float>();
+
+        foreach (var storage in storages)
+        {
+            var path = PathFinder.FindBestPath(storage, asWireConn, usedWires);
+            if (path.Count == 0) continue;
+            var wires = path.OfType<IWire>();
+            foreach (var wire in wires) usedWires.Add(wire);
+
+            var power = PowerFlow.CalculatePower(storage.Count(Consts.storagePowerKey), path);
+            if (power <= float.Epsilon) continue;
+            storagesWithPower.Add(storage, power);
+        }
+        
+        if (storagesWithPower.Count == 0) return false;
+        if (storagesWithPower.Sum(x => x.Value) < amount) return false;
+        storagesWithPower = storagesWithPower.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+
+        var consumedPower = 0f;
+        foreach (var pair in storagesWithPower)
+        {
+            var storage = pair.Key;
+            var powerStored = pair.Value;
+
+            if (consumedPower >= amount) break;
+
+            var toConsume = Min(amount - consumedPower, powerStored);
+            consumedPower += toConsume;
+            storage.Remove(Consts.storagePowerKey, toConsume);
+        }
+
+        return true;
     }
 }

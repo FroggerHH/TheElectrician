@@ -18,7 +18,6 @@ file static class ShowPieceLevel
 
         var pieces = ZNetScene.instance.GetPrefabs(Library.GetAllSettings().Keys.ToArray())
             .Select(x => x?.GetComponent<Piece>()).Where(x => x != null).ToList();
-        Debug($"pieces: {pieces.Count}, {pieces.GetString()}");
         foreach (var piece in pieces)
         {
             if (!Library.IsEO(piece)) continue;

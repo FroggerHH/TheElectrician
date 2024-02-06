@@ -27,6 +27,7 @@ global using static TheElectrician.Plugin;
 global using static BepInEx.BepInDependency;
 global using static Player;
 global using static Skills;
+global using static TheElectrician.Helpers.PrefabHelper;
 global using ConsoleCommand = Terminal.ConsoleCommand;
 global using static UnityEngine.Mathf;
 global using StringBuilder = System.Text.StringBuilder;

@@ -13,6 +13,7 @@ public static class TheConfig
     private static ConfigEntry<float> _wireMaxFalloffByDistanceConfig;
     private static ConfigEntry<float> _objectTickTimeConfig;
     private static ConfigEntry<float> _powerTickTimeConfig;
+    private static ConfigEntry<int> _roundingPrecisionConfig;
 
     public static float WireUpdateCableInterval { get; private set; }
 
@@ -21,6 +22,7 @@ public static class TheConfig
     public static float ObjectTickTime { get; private set; } = 999;
 
     public static float PowerTickTime { get; private set; } = 999;
+    public static int RoundingPrecision { get; private set; } = 2;
 
     internal static void Init()
     {
@@ -45,6 +47,10 @@ public static class TheConfig
         _powerTickTimeConfig = config("General", "Power Tick Time", 0.5f,
             new ConfigDescription("The time between updating power flow. In seconds",
                 new AcceptableValueRange<float>(0.01f, 2f)));
+
+        _roundingPrecisionConfig = config("General", "Rounding Precision", 2,
+            new ConfigDescription("How many numbers after the decimal point should the displayed values be rounded to.",
+                new AcceptableValueRange<int>(1, 8)));
     }
 
 
@@ -55,6 +61,7 @@ public static class TheConfig
         WireMaxFalloffByDistance = _wireMaxFalloffByDistanceConfig.Value;
         ObjectTickTime = _objectTickTimeConfig.Value;
         PowerTickTime = _powerTickTimeConfig.Value;
+        RoundingPrecision = _roundingPrecisionConfig.Value;
 
         if (debugConfig) Debug("Configuration updated");
     }

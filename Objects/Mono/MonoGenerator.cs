@@ -10,6 +10,8 @@ public class MonoGenerator : ElectricMono, Hoverable, Interactable
     private float m_lastUseTime;
     private IGenerator generator;
 
+    internal EffectList addEffect;
+
     public override string GetHoverText()
     {
         if (generator == null) return string.Empty;
@@ -31,7 +33,7 @@ public class MonoGenerator : ElectricMono, Hoverable, Interactable
         sb.AppendLine($"[<color=yellow><b>$KEY_Use</b></color>] $piece_smelter_add {fuelItemName}".Localize());
         sb.AppendLine($"${ModName}_storage_capacity".Localize() + ": " + generator.GetCapacity());
 
-        if (!generator.CanAdd(Consts.storagePowerKey,generator.GetPowerPerTick()))
+        if (!generator.CanAdd(Consts.storagePowerKey, generator.GetPowerPerTick()))
             sb.AppendLine($"<color=#F448B2>${ModName}_generator_is_full  </color>".Localize());
 
         //Fuel item
@@ -63,7 +65,12 @@ public class MonoGenerator : ElectricMono, Hoverable, Interactable
         }
 
         var addResult = generator.AddFuel(1);
-        if (addResult) user.GetInventory().RemoveItem(fuelItem, 1);
+        if (addResult)
+        {
+            user.GetInventory().RemoveItem(fuelItem, 1);
+            addEffect?.Create(transform.position, Quaternion.identity);
+        }
+
         return addResult;
     }
 
@@ -79,7 +86,12 @@ public class MonoGenerator : ElectricMono, Hoverable, Interactable
         }
 
         var addResult = generator.AddFuel(1);
-        if (addResult) user.GetInventory().RemoveItem(fuelItem, 1);
+        if (addResult)
+        {
+            user.GetInventory().RemoveItem(fuelItem, 1);
+            addEffect?.Create(transform.position, Quaternion.identity);
+        }
+
         return addResult;
     }
 
