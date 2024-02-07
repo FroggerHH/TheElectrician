@@ -47,4 +47,4 @@ if __name__ == "__main__":
     new_todo_pattern = re.compile(r"//TODO:\s*([^\n]+)")
     old_todo_pattern = re.compile(r'#+\s*TODOs(.*?)(?=\n?#+|$)', re.DOTALL)
     readme_path = os.path.join(directory, 'README.md')
-    overwrite_todos(find_new_todos(['.cs', '.py']))
+    overwrite_todos(find_new_todos(['.cs']))
