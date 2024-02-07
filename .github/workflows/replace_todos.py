@@ -39,8 +39,8 @@ def overwrite_todos(new_todos):
     content = re.sub(old_todo_pattern, '## TODOs\n', content)
     if '## TODOs' not in content:
         print(bcolors.WARNING + 'TODOs section not found in README.md. Skipping...')
-        print('You need to add a TODOs section to README.md. Can be empty, just a header.')
-        print('Example: ## TODOs'+ bcolors.ENDC)
+        print(bcolors.WARNING + 'You need to add a TODOs section to README.md. Can be empty, just a header.')
+        print(bcolors.WARNING + 'Example: ## TODOs' + bcolors.ENDC)
         return
 
     end_of_todos_pattern = re.compile(r'## TODOs\n')
