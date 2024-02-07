@@ -2,6 +2,18 @@
 import re
 
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
 def find_new_todos(file_extensions):
     new_todos = []
     for root, _, files in os.walk(directory):
@@ -18,7 +30,6 @@ def find_new_todos(file_extensions):
                         print(' -', todo)
                     new_todos.extend(todos_found)
 
-    print('new_todos', new_todos)
     return new_todos
 
 
@@ -26,6 +37,11 @@ def overwrite_todos(new_todos):
     with open(readme_path, 'r') as file:
         content = file.read()
     content = re.sub(old_todo_pattern, '## TODOs\n', content)
+    if '## TODOs' not in content:
+        print(bcolors.WARNING + 'TODOs section not found in README.md. Skipping...')
+        print('You need to add a TODOs section to README.md. Can be empty, just a header.')
+        print('Example: ## TODOs'+ bcolors.ENDC)
+        return
 
     end_of_todos_pattern = re.compile(r'## TODOs\n')
     end_of_todos_match = end_of_todos_pattern.search(content)
