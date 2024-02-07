@@ -13,7 +13,9 @@ def find_new_todos(file_extensions):
 
                 todos_found = re.findall(new_todo_pattern, content)
                 if todos_found:
-                    print(f'Found {len(todos_found)} todos in file {file_path.split('/')[-1]}', todos_found)
+                    print(f'Found {len(todos_found)} todos in file {file_path.split('/')[-1]}')
+                    for todo in todos_found:
+                        print(' -', todo)
                     new_todos.extend(todos_found)
 
     print('new_todos', new_todos)
