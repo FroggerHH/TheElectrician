@@ -8,11 +8,12 @@ def find_new_todos(file_extensions):
         for file in files:
             if file.endswith(tuple(file_extensions)):
                 file_path = os.path.join(root, file)
-                with open(file_path, "r", encoding="utf-8") as f: content = f.read()
+                with open(file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
 
                 todos_found = re.findall(new_todo_pattern, content)
                 if todos_found:
-                    print(f'Found {len(todos_found)} todos in file {file_path.split("\\")[-1]}')
+                    print(f'Found {len(todos_found)} todos in file {file_path.split('/')[-1]}', todos_found)
                     new_todos.extend(todos_found)
 
     print('new_todos', new_todos)
