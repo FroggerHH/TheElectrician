@@ -8,7 +8,9 @@ public class MonoGenerator : ElectricMono, Hoverable, Interactable
     private GameObject enabledVisual;
     private GameObject itemPreview;
     private float m_lastUseTime;
-    public IGenerator generator { get; private set; }
+    private IGenerator generator;
+
+    internal EffectList addEffect;
 
     public override string GetHoverText()
     {
@@ -20,9 +22,19 @@ public class MonoGenerator : ElectricMono, Hoverable, Interactable
         if (fuelItemPrefab != null) fuelItemName = fuelItemPrefab.m_itemData.m_shared.m_name;
 
         sb.AppendLine(piece.m_name.Localize());
+        if (m_debugMode)
+        {
+            sb.AppendLine($"ID: {generator.GetId()}");
+            var connected = generator.GetConnections().Select(x => x?.GetId().ToString() ?? "null").ToList();
+            sb.AppendLine($"Connected: {(connected.Count > 0 ? connected.GetString() : "no one")}");
+        }
+
         sb.AppendLine();
         sb.AppendLine($"[<color=yellow><b>$KEY_Use</b></color>] $piece_smelter_add {fuelItemName}".Localize());
         sb.AppendLine($"${ModName}_storage_capacity".Localize() + ": " + generator.GetCapacity());
+
+        if (!generator.CanAdd(Consts.storagePowerKey, generator.GetPowerPerTick()))
+            sb.AppendLine($"<color=#F448B2>${ModName}_generator_is_full  </color>".Localize());
 
         //Fuel item
         if (fuelItemName.IsGood())
@@ -52,8 +64,13 @@ public class MonoGenerator : ElectricMono, Hoverable, Interactable
             return false;
         }
 
-        var addResult = generator.Add(fuelItemPrefabName, 1);
-        if (addResult) user.GetInventory().RemoveItem(fuelItem, 1);
+        var addResult = generator.AddFuel(1);
+        if (addResult)
+        {
+            user.GetInventory().RemoveItem(fuelItem, 1);
+            addEffect?.Create(transform.position, Quaternion.identity);
+        }
+
         return addResult;
     }
 
@@ -68,8 +85,13 @@ public class MonoGenerator : ElectricMono, Hoverable, Interactable
             return false;
         }
 
-        var addResult = generator.Add(fuelItemPrefabName, 1);
-        if (addResult) user.GetInventory().RemoveItem(fuelItem, 1);
+        var addResult = generator.AddFuel(1);
+        if (addResult)
+        {
+            user.GetInventory().RemoveItem(fuelItem, 1);
+            addEffect?.Create(transform.position, Quaternion.identity);
+        }
+
         return addResult;
     }
 

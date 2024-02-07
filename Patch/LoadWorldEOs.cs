@@ -4,5 +4,5 @@
 file static class LoadWorldEOs
 {
     [HarmonyPatch(nameof(ZDOMan.Load))] [HarmonyPostfix]
-    private static void Load() => EOLifeHandler.Load();
+    private static void Load() { EOLifeHandler.Load(); }
 }

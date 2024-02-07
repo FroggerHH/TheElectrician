@@ -1,17 +1,18 @@
 ﻿namespace TheElectrician.Models.Settings;
 
-public class StorageSettings : ElectricObjectSettings
+public class StorageSettings(
+    Type type,
+    int startLevel,
+    int maxLevel,
+    float conductivity,
+    float powerLoss,
+    int maxConnections,
+    int capacity,
+    string[] allowedKeys = null)
+    : WireConnectableSettings(type, startLevel, maxLevel, conductivity, powerLoss, maxConnections)
 {
-    public readonly int capacity;
+    public readonly int capacity = capacity;
+    public readonly string[] allowedKeys = allowedKeys ?? [Consts.storagePowerKey];
 
-    public StorageSettings(Type type, int capacity, bool storeOnlyPower = true) : base(type)
-    {
-        this.capacity = capacity;
-    }
-
-    public override string ToString()
-    {
-        return $"Settings: type={type.Name} "
-               + $"capacity={capacity}";
-    }
+    public override string ToString() => $"{base.ToString()} capacity={capacity} allowedKeys={allowedKeys}";
 }

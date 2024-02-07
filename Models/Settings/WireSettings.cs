@@ -1,15 +1,9 @@
 ﻿namespace TheElectrician.Models.Settings;
 
-public class WireSettings : ElectricObjectSettings
+public class WireSettings : WireConnectableSettings
 {
-    public readonly float conductivity;
-
-    public WireSettings(Type type, float conductivity) : base(type) { this.conductivity = conductivity; }
-
-
-    public override string ToString()
+    public WireSettings(Type type, int startLevel, int maxLevel, float conductivity, float powerLoss, int maxConnections) :
+        base(type, startLevel, maxLevel, conductivity, powerLoss, maxConnections)
     {
-        return $"Settings: type={type.Name} "
-               + $"conductivity={conductivity}";
     }
 }

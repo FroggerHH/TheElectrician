@@ -3,6 +3,9 @@ using TheElectrician.Libs.LocalizationManager;
 using TheElectrician.Libs.PieceManager;
 using TheElectrician.Models.Settings;
 using TheElectrician.Objects;
+using TheElectrician.Objects.Consumers;
+using TheElectrician.Objects.Consumers.Furnace;
+using TheElectrician.Systems.Config;
 
 namespace TheElectrician;
 
@@ -11,13 +14,14 @@ public class Plugin : BaseUnityPlugin
 {
     private const string ModName = "TheElectrician",
         ModAuthor = "Frogger",
-        ModVersion = "0.1.1",
+        ModVersion = "0.1.0",
         ModGUID = $"com.{ModAuthor}.{ModName}";
 
     private void Awake()
     {
         CreateMod(this, ModName, ModAuthor, ModVersion, ModGUID);
-        OnConfigurationChanged += UpdateConfiguration;
+        TheConfig.Init();
+        OnConfigurationChanged += TheConfig.UpdateConfiguration;
 
         Localizer.Load();
         AddBuildPieces();
@@ -25,8 +29,6 @@ public class Plugin : BaseUnityPlugin
 
     private void AddBuildPieces()
     {
-        //TODO: Add some consumers
-        //TODO: Add electric smelter
         LoadAssetBundle("theelectrician");
 
         BuildPiece coalGenerator = new(bundle, "TE_coalGenerator");
@@ -39,16 +41,31 @@ public class Plugin : BaseUnityPlugin
         coalGenerator.RequiredItems.Add("SurtlingCore", 4, true);
         coalGenerator.Category.Set("TheElectrician");
         Library.Register("TE_coalGenerator", new GeneratorSettings(
-            typeof(Generator), 150, 1.5f, "Coal", 0.41f, 100));
+            typeof(Generator), 1, 1, 32, 15, 2, 150,
+            1.5f, "Coal", 0.41f, 100));
+
+        BuildPiece stoneFurnace = new(bundle, "TE_stoneFurnace");
+        stoneFurnace.Name.English("Electric Furnace");
+        stoneFurnace.Name.Russian("Электрическая печь");
+        stoneFurnace.Description.English("Uses electricity to melt ore and make coal");
+        stoneFurnace.Description.Russian("Использует электричество для плавки руды и изготовления угля");
+        stoneFurnace.RequiredItems.Add("Stone", 40, false);
+        stoneFurnace.RequiredItems.Add("FineWood", 5, true);
+        stoneFurnace.RequiredItems.Add("RoundLog", 30, true);
+        stoneFurnace.RequiredItems.Add("SurtlingCore", 20, true);
+        stoneFurnace.Category.Set("TheElectrician");
+        Library.Register("TE_stoneFurnace", new FurnaceSettings(
+            typeof(Furnace), 1, 1, 32, 15, 2, 150));
 
         BuildPiece woodWire = new(bundle, "TE_woodWire");
-        woodWire.Name.English("Wooden wire fastening");
-        woodWire.Name.Russian("Деревянное крепление провода");
+        woodWire.Name.English("Wire fastening");
+        woodWire.Name.Russian("Крепление провода");
         woodWire.Description.English("Allows connecting objects with wires. Conducts 32 EU per tick.");
         woodWire.Description.Russian("Позволяет соединять объекты проводами. Передаёт 32 EU в тик.");
         woodWire.RequiredItems.Add("Wood", 1, true);
         woodWire.Category.Set("TheElectrician");
-        Library.Register("TE_woodWire", new WireSettings(typeof(Wire), 32f));
+        Library.Register("TE_woodWire",
+            new WireSettings(typeof(Wire), 0, 0, 32f, 5f, 4));
 
         BuildPiece woodStorage = new(bundle, "TE_woodenStorage");
         woodStorage.Name.English("Wooden power storage");
@@ -58,8 +75,7 @@ public class Plugin : BaseUnityPlugin
         woodStorage.RequiredItems.Add("Wood", 60, true);
         woodStorage.RequiredItems.Add("Resin", 35, true);
         woodStorage.Category.Set("TheElectrician");
-        Library.Register("TE_woodenStorage", new StorageSettings(typeof(Storage), 100));
+        Library.Register("TE_woodenStorage",
+            new StorageSettings(typeof(Storage), 0, 0, 32f, 10f, 3, 100, [Consts.storagePowerKey]));
     }
-
-    private void UpdateConfiguration() { Debug("Configuration Received"); }
 }

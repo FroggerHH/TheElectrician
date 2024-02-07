@@ -1,6 +1,9 @@
-﻿namespace TheElectrician.Systems;
+﻿using System.Diagnostics.CodeAnalysis;
+using TheElectrician.Systems.Config;
 
-public static class Updater
+namespace TheElectrician.Systems;
+
+internal static class Updater
 {
     public static void Start()
     {
@@ -18,7 +21,6 @@ public static class Updater
     {
         try
         {
-            PowerFlow.Update();
             UpdateObjects();
         }
         catch (Exception e)
@@ -33,9 +35,10 @@ public static class Updater
         foreach (var obj in enumerable) obj.Update();
     }
 
+    [SuppressMessage("ReSharper", "FunctionRecursiveOnAllPaths")]
     private static IEnumerator UpdateEnumerator()
     {
-        yield return new WaitForSeconds(Consts.tickTime);
+        yield return new WaitForSeconds(TheConfig.ObjectTickTime);
         Update();
         GetPlugin().StartCoroutine(UpdateEnumerator());
     }

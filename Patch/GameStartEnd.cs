@@ -1,4 +1,6 @@
-﻿namespace TheElectrician.Patch;
+﻿using TheElectrician.Systems.PowerFlow;
+
+namespace TheElectrician.Patch;
 
 [HarmonyPatch(typeof(Game))] [HarmonyWrapSafe] [UsedImplicitly]
 file static class GameStartEnd
@@ -8,6 +10,7 @@ file static class GameStartEnd
     {
         EOLifeHandler.Clear();
         Updater.Start();
+        PowerFlow.Start();
     }
 
     [HarmonyPatch(nameof(Game.OnDestroy))] [HarmonyPostfix]
@@ -15,5 +18,6 @@ file static class GameStartEnd
     {
         EOLifeHandler.Clear();
         Updater.Destroy();
+        PowerFlow.Destroy();
     }
 }

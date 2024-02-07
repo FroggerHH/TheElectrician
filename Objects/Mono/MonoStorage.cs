@@ -1,11 +1,12 @@
 ﻿using TheElectrician.Models;
 using TheElectrician.Objects.Mono.Wire;
+using TheElectrician.Systems.Config;
 
 namespace TheElectrician.Objects.Mono;
 
 public class MonoStorage : ElectricMono, Interactable
 {
-    public IStorage storage { get; private set; }
+    private IStorage storage { get; set; }
 
     public override void OnDestroy()
     {
@@ -39,6 +40,9 @@ public class MonoStorage : ElectricMono, Interactable
             sb.AppendLine($"Connected: {(connected.Count > 0 ? connected.GetString() : "none")}");
         }
 
+        if (storage.IsFull())
+            sb.AppendLine($"<color=#F448B2>${ModName}_storage_is_full </color>".Localize());
+
         sb.AppendLine();
         sb.AppendLine($"${ModName}_storage_capacity".Localize() + ": " + storage.GetCapacity());
         sb.AppendLine(StoredText(storage));
@@ -56,7 +60,8 @@ public class MonoStorage : ElectricMono, Interactable
         foreach (var itemPair in currentStored)
         {
             var prefabName = itemPair.Key;
-            var count = itemPair.Value;
+            var count = Math.Round(itemPair.Value, TheConfig.RoundingPrecision);
+            //Show 0 if less than Consts.minPower
             if (!prefabName.IsGood()) continue;
             string itemName;
             if (prefabName == Consts.storagePowerKey)

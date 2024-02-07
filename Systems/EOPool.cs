@@ -2,7 +2,7 @@
 
 namespace TheElectrician.Systems;
 
-public static class EOPool
+internal static class EOPool
 {
     private const int c_BatchSize = 3;
     private static readonly Dictionary<Type, Stack<ElectricObject>> free = new();

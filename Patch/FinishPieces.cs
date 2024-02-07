@@ -1,63 +1,82 @@
-﻿using TheElectrician.Objects.Mono;
+﻿using TheElectrician.Helpers;
+using TheElectrician.Models;
+using TheElectrician.Objects.Mono;
+using static TheElectrician.Helpers.ShaderHelper;
 
 namespace TheElectrician.Patch;
 
 [HarmonyPatch(typeof(ZNetScene), nameof(ZNetScene.Awake))] [HarmonyWrapSafe]
 file static class FinishPieces
 {
+    private static EffectList woodPlaceEffect;
+    private static WearNTear woodwallWN;
+    private static WearNTear smelterWN;
+    private static Smelter smelter;
+
     [UsedImplicitly] [HarmonyPostfix]
     private static void Postfix(ZNetScene __instance)
     {
-        var woodPlaceEffect = piece("woodwall").m_placeEffect;
-        var woodwallWN = wearNTear("woodwall");
-        TE_coalGenerator(woodPlaceEffect, woodwallWN);
-        TE_woodStorage(woodPlaceEffect, woodwallWN);
-        TE_woodWire(woodPlaceEffect, woodwallWN);
+        ShaderHelper.Init();
+
+        woodPlaceEffect = piece("woodwall").m_placeEffect;
+        woodwallWN = wearNTear("woodwall");
+        smelter = prefab("smelter").GetComponent<Smelter>();
+        smelterWN = smelter.GetComponent<WearNTear>();
+        TE_coalGenerator();
+        TE_woodStorage();
+        TE_woodWire();
+        TE_stoneFurnace();
     }
 
-    private static void TE_woodWire(EffectList woodPlaceEffect, WearNTear woodwallWN)
+    private static void TE_woodWire()
     {
         var wirePiece = piece("TE_woodWire");
         var wirePieceWN = wearNTear("TE_woodWire");
         wirePiece.m_placeEffect = woodPlaceEffect;
         wirePieceWN.m_hitEffect = woodwallWN.m_hitEffect;
-        FixShaders(wirePiece);
+        FixShaders(wirePiece.gameObject);
         wirePiece.gameObject.GetOrAddComponent<MonoWire>();
     }
 
-    private static void TE_woodStorage(EffectList woodPlaceEffect, WearNTear woodwallWN)
+    private static void TE_woodStorage()
     {
         var storagePiece = piece("TE_woodenStorage");
         var storagePieceWN = wearNTear("TE_woodenStorage");
         storagePiece.m_placeEffect = woodPlaceEffect;
         storagePieceWN.m_hitEffect = woodwallWN.m_hitEffect;
-        FixShaders(storagePiece);
-        storagePiece.gameObject.GetOrAddComponent<MonoStorage>();
+        var go = storagePiece.gameObject;
+        FixShaders(go);
+        go.GetOrAddComponent<MonoStorage>();
     }
 
-    private static void TE_coalGenerator(EffectList woodPlaceEffect, WearNTear woodwallWN)
+    private static void TE_coalGenerator()
     {
         var generatorPiece = piece("TE_coalGenerator");
         var generatorPieceWN = wearNTear("TE_coalGenerator");
-        generatorPiece.m_placeEffect = woodPlaceEffect;
-        generatorPieceWN.m_hitEffect = woodwallWN.m_hitEffect;
-        FixShaders(generatorPiece);
-        var smoke = generatorPiece.GetComponentInChildren<SmokeSpawner>(true);
-        smoke.m_smokePrefab = prefab("charcoal_kiln").GetComponentInChildren<SmokeSpawner>(true).m_smokePrefab;
-        generatorPiece.gameObject.GetOrAddComponent<MonoGenerator>();
+        generatorPiece.m_placeEffect = piece("smelter").m_placeEffect;
+        generatorPieceWN.m_hitEffect = smelterWN.m_hitEffect;
+        var go = generatorPiece.gameObject;
+        FixShaders(go);
+        FixSmoke(go);
+        var monoGenerator = go.GetOrAddComponent<MonoGenerator>();
+        monoGenerator.addEffect = smelter.m_oreAddedEffects;
     }
 
-    private static void FixShaders(Component obj)
+    private static void TE_stoneFurnace()
     {
-        var renderers = obj.GetComponentsInChildren<Renderer>();
-        foreach (var ren in renderers)
-            ren.material.shader = Shader.Find(ren.material.shader.name);
+        var stoneFurnacePiece = piece("TE_stoneFurnace");
+        var stoneFurnaceWN = wearNTear("TE_stoneFurnace");
+        stoneFurnacePiece.m_placeEffect = piece("smelter").m_placeEffect;
+        stoneFurnaceWN.m_hitEffect = smelterWN.m_hitEffect;
+        FixShaders(stoneFurnacePiece);
+        var go = stoneFurnacePiece.gameObject;
+        FixSmoke(go);
+        FixGuidePoint(go);
+        var monoFurnace = go.GetOrAddComponent<MonoFurnace>();
+        monoFurnace.doneEffect = smelter.m_produceEffects;
+        monoFurnace.addEffect = smelter.m_oreAddedEffects;
+
+        DebugWarning($"monoFurnace.doneEffect {monoFurnace.doneEffect?.ToString() ?? "null"}");
+        DebugWarning($"MonoFurnace.all {ElectricMono.GetAll().OfType<IFurnace>()}");
     }
-
-    private static ItemDrop item(string name) { return prefab(name)?.GetComponent<ItemDrop>(); }
-    private static GameObject prefab(string name) { return ZNetScene.instance?.GetPrefab(name); }
-
-    private static Piece piece(string name) { return prefab(name)?.GetComponent<Piece>(); }
-
-    private static WearNTear wearNTear(string name) { return prefab(name)?.GetComponent<WearNTear>(); }
 }

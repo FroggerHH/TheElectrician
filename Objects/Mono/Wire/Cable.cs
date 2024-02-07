@@ -1,4 +1,5 @@
 using TheElectrician.Models;
+using TheElectrician.Systems.Config;
 
 namespace TheElectrician.Objects.Mono.Wire;
 
@@ -56,7 +57,7 @@ public class Cable : MonoBehaviour
         transform.position = new Vector3(0, 0, 0);
 
         betweenVector = Vector3.Lerp(pos1, pos2, .5f);
-        _falloffByDistance = Clamp(.1f * Vector3.Distance(pos1, pos2), 0f, Consts.wireMaxFalloffByDistance);
+        _falloffByDistance = Clamp(.1f * Vector3.Distance(pos1, pos2), 0f, TheConfig.WireMaxFalloffByDistance);
         betweenVector.y -= _falloffByDistance;
         SetPositions(
             new Vector3(pos1.x, pos1.y, pos1.z),

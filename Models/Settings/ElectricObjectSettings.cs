@@ -1,10 +1,9 @@
 ﻿namespace TheElectrician.Models.Settings;
 
 [Serializable]
-public class ElectricObjectSettings
+public class ElectricObjectSettings(Type type)
 {
-    public readonly Type type;
-    public ElectricObjectSettings(Type type) { this.type = type; }
+    public readonly Type type = type;
 
-    public override string ToString() { return $"Settings: type={type.Name}"; }
+    public override string ToString() => $"Settings: type={type.Name}";
 }
