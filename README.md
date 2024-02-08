@@ -29,3 +29,12 @@ Discord - <img alt="GitHub Logo" src="https://freelogopng.com/images/all_img/169
 Me on Thunderstore - <a href="https://valheim.thunderstore.io/package/Frogger/">
 <img alt="Thunderstore Logo" src="https://gcdn.thunderstore.io/live/community/valheim/PNG_color_logo_only_1_transparent.png" width="14"/>
 Frogger Mods</a><br>
+## TODOs
+* Add compendium page
+* calculate power based on level using curve
+* calculate ticks based on level using curve
+* Calculate taking into account the conductivity of the wires
+* The maximum distance between the wires (you cannot connect two wires from different sides of the world)
+* Checking the wire block (the cable cannot pass through obstacles)
+* Fix this dumb shit
+* ZDOMan.DestroyZDO
