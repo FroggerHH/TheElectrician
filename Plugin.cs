@@ -51,6 +51,7 @@ public class Plugin : BaseUnityPlugin
 
     private void AddBuildPieces()
     {
+        //TODO: Add item pipes
         LoadAssetBundle("theelectrician");
 
         BuildPiece coalGenerator = new(bundle, "TE_coalGenerator");
