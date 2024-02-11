@@ -1,10 +1,12 @@
-﻿namespace TheElectrician.Systems.PowerFlow;
+﻿using TheElectrician.Extensions;
+
+namespace TheElectrician.Systems.PowerFlow;
 
 public class PowerSystem : IEquatable<PowerSystem>
 {
     private HashSet<IWireConnectable> connections = [];
 
-    public float GetPowerStored() { return connections.OfType<IStorage>().Sum(x => x.Count(Consts.storagePowerKey)); }
+    public float GetPowerStored() { return connections.OfType<IStorage>().Sum(x => x.GetPower()); }
 
     public override string ToString() { return $"Connections: {connections.GetString()}, Power: {GetPowerStored()}"; }
 
@@ -14,7 +16,6 @@ public class PowerSystem : IEquatable<PowerSystem>
 
     public void SetConnections(HashSet<IWireConnectable> connections) { this.connections = connections; }
 
-
     public float GetPossiblePowerInElement(IWireConnectable element)
     {
         if (element is null) return 0;
@@ -22,7 +23,7 @@ public class PowerSystem : IEquatable<PowerSystem>
 
         float power = 0;
 
-        var storages = GetStorages();
+        var storages = GetStorages().OrderByDescending(x => x.GetPower());
         var usedWires = new HashSet<IWire>();
         foreach (var storage in storages)
         {
@@ -30,13 +31,13 @@ public class PowerSystem : IEquatable<PowerSystem>
             if (path.Count == 0) continue;
             var wires = path.OfType<IWire>().ToList();
             foreach (var wire in wires) usedWires.Add(wire);
-            power += PowerFlow.CalculatePower(storage.Count(Consts.storagePowerKey), path);
+            power += PowerFlow.CalculatePower(storage.GetPower(), path);
         }
 
         return Clamp(power, 0, element.GetConductivity());
     }
 
-    private List<IStorage> GetStorages() { return connections.OfType<IStorage>().ToList(); }
+    public List<IStorage> GetStorages() { return connections.OfType<IStorage>().ToList(); }
 
     public bool ConsumePower(IConsumer consumer, float amount)
     {

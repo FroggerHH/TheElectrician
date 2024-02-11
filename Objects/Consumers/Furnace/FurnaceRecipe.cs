@@ -3,31 +3,7 @@
 [Serializable]
 public class FurnaceRecipe
 {
-    static FurnaceRecipe()
-    {
-        recipes = [];
-
-        new FurnaceRecipe("Wood", "Coal", 1, 2, 1, 10);
-        new FurnaceRecipe("FineWood", "Coal", 1, 2, 2, 10);
-        new FurnaceRecipe("CoreWood", "Coal", 1, 2, 3);
-
-        new FurnaceRecipe("TinOre", "Tin", 1, 4, 1, 32);
-
-        new FurnaceRecipe("CopperOre", "Copper", 2, 2, 1, 50);
-        new FurnaceRecipe("CopperScrap", "Copper", 2, 2, 1, 50);
-
-        new FurnaceRecipe("IronOre", "Iron", 3, 2, 1, 120);
-        new FurnaceRecipe("IronScrap", "Iron", 3, 2, 1, 120);
-
-        new FurnaceRecipe("SilverOre", "Silver", 4, 2, 1, 200);
-        new FurnaceRecipe("SilverNecklace", "Silver", 4, 1, 1, 80, 2);
-
-        new FurnaceRecipe("BlackMetalScrap", "BlackMetal", 5, 2, 1, 350);
-
-        new FurnaceRecipe("FlametalOre", "Flametal", 6, 2, 1, 500);
-    }
-
-    private static HashSet<FurnaceRecipe> recipes = null;
+    private static HashSet<FurnaceRecipe> recipes = [];
 
     public string input;
     public string output;

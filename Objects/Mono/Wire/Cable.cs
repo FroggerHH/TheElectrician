@@ -42,10 +42,6 @@ public class Cable : MonoBehaviour
 
     private void LateUpdate() { _sides = Max(3, _sides); }
 
-    private void OnBecameInvisible() { _meshRenderer.enabled = false; }
-
-    private void OnBecameVisible() { _meshRenderer.enabled = true; }
-
     public void SetConnection(Vector3 obj1, Vector3 obj2)
     {
         pos1 = obj1;

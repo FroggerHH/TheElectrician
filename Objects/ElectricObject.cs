@@ -41,8 +41,7 @@ public class ElectricObject : IElectricObject
         if (this is not IWireConnectable wireConnectable) return;
         List<IPipeableConnectable> connections = [];
         foreach (var connection in wireConnectable.GetConnections()) connections.Add(connection);
-        Debug($"Reset {wireConnectable.ToString() ?? "null"}, "
-              + $"connections: {wireConnectable.GetConnections().GetString()}");
+        //Debug($"Reset {wireConnectable.ToString() ?? "null"}, connections: {wireConnectable.GetConnections().GetString()}");
         foreach (var con in connections) con.RemoveConnection(wireConnectable);
     }
 

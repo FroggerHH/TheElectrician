@@ -96,7 +96,8 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Consts.cs"/>
-        <Compile Include="GlobalUsings.cs"/>
+        <Compile Include="Extensions\StorageExtension.cs" />
+        <Compile Include="GlobalUsings.cs" />
         <Compile Include="Helpers\PrefabHelper.cs" />
         <Compile Include="Helpers\ShaderHelper.cs" />
         <Compile Include="Libs\LocalizationManager\LocalizationManager.cs" />

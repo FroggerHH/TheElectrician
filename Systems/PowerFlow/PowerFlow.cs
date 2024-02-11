@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using TheElectrician.Extensions;
 using TheElectrician.Objects.Consumers.Furnace;
 
 namespace TheElectrician.Systems.PowerFlow;
@@ -41,20 +42,22 @@ public static class PowerFlow
 
         foreach (var powerSys in powerSystems)
         {
-            var storages = powerSys.GetConnections().OfType<Storage>().Where(x => x is not IGenerator && !x.IsFull())
-                .OrderBy(x => x.Count(Consts.storagePowerKey)).ToList();
+            var storages = powerSys.GetStorages()
+                .Where(x => x is not IGenerator && x is not IConsumer && !x.IsFull())
+                .OrderBy(x => x.GetPower()).ToList();
             var generators = powerSys.GetConnections().OfType<IGenerator>()
-                .Where(x => x.Count(Consts.storagePowerKey) > 0).OrderByDescending(x => x.Count(Consts.storagePowerKey))
+                .Where(x => x.GetPower() > 0).OrderByDescending(x => x.GetPower())
                 .ToList();
 
             if (storages.Count == 0 || generators.Count == 0) continue;
             HashSet<IWire> usedWires = [];
             foreach (var storage in storages)
             {
+                // Debug($"storage {storage.GetObjectString()}");
                 if (storage.IsFull()) continue;
                 foreach (var gen in generators)
                 {
-                    var toAdd = Min(storage.FreeSpace(), gen.Count(Consts.storagePowerKey));
+                    var toAdd = Min(storage.FreeSpace(), gen.GetPower());
                     if (toAdd == 0) continue;
 
                     var path = PathFinder.FindBestPath(storage, gen, usedWires);
@@ -65,6 +68,7 @@ public static class PowerFlow
                     toAdd = CalculatePower(toAdd, path);
 
                     gen.TransferTo(storage, Consts.storagePowerKey, toAdd);
+                    return;
                 }
             }
         }

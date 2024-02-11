@@ -1,4 +1,5 @@
-﻿using TheElectrician.Models.Settings;
+﻿using System.Threading;
+using TheElectrician.Models.Settings;
 using TheElectrician.Systems.PowerFlow;
 
 namespace TheElectrician.Objects.Consumers.Furnace;
