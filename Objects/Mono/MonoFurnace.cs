@@ -17,6 +17,9 @@ public class MonoFurnace : ElectricMono, Hoverable, Interactable
 
     internal EffectList addEffect;
     internal EffectList doneEffect;
+    private Camera _camera;
+
+    private void Start() => _camera = Camera.main;
 
     public override void SetUp()
     {
@@ -64,9 +67,17 @@ public class MonoFurnace : ElectricMono, Hoverable, Interactable
         InvokeRepeating(nameof(UpdateVisual), 1.0f, 1.0f);
     }
 
+    private void Update()
+    {
+        if (!_camera || !canvas) return;
+
+        var cameraDirection = _camera.transform.forward;
+        canvas.transform.rotation = Quaternion.LookRotation(cameraDirection);
+    }
+
     private void UpdateVisual()
     {
-        enabledVisual.SetActive(furnace.IsInWorkingState());
+        enabledVisual.SetActive(furnace.IsInWorkingState() && furnace.HaveEnoughPower());
 
         var recipe = furnace.GetCurrentRecipe();
         var progress = furnace.GetProgress();
@@ -185,13 +196,13 @@ public class MonoFurnace : ElectricMono, Hoverable, Interactable
 
         sb.AppendLine();
         // sb.AppendLine($"${ModName}_level ${ModName}_level_{level}".Localize());
-        if (!furnace.HaveEnoughPower())
-            sb.AppendLine($"<color=#F448B2>${ModName}_furnace_low_power </color>".Localize());
         sb.AppendLine($"${ModName}_storage_capacity".Localize() + ": " + furnace.GetCapacity());
         if (furnace.IsInWorkingState())
         {
             sb.Append("<color=#F6E68B>");
             sb.AppendLine($"${ModName}_furnace_is_working".Localize());
+            if (!furnace.HaveEnoughPower())
+                sb.AppendLine($"<color=#F448B2>${ModName}_furnace_low_power </color>".Localize());
             var progress = furnace.GetProgress();
             var recipe = furnace.GetCurrentRecipe();
             var inputItem = ObjectDB.instance.GetItem(recipe.input)?.LocalizeName() ?? "???";

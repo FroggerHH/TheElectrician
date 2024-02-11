@@ -127,4 +127,10 @@ public class Furnace : Storage, IFurnace
         cachedRecipes.FirstOrDefault(x => CanProduceRecipe(x, false));
 
     public override string[] GetAllowedKeys() => cachedAllowedKeys;
+
+    public override string ToString()
+    {
+        if (!IsValid()) return "Uninitialized Furnace";
+        return $"Furnace {GetId()} level: {GetLevel()}";
+    }
 }

@@ -1,5 +1,4 @@
 ﻿using TheElectrician.Objects.Consumers.Furnace;
-using UnityEngine.Events;
 
 namespace TheElectrician.Models;
 

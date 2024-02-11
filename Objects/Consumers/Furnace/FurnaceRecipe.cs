@@ -6,7 +6,7 @@ public class FurnaceRecipe
     static FurnaceRecipe()
     {
         recipes = [];
-        
+
         new FurnaceRecipe("Wood", "Coal", 1, 2, 1, 10);
         new FurnaceRecipe("FineWood", "Coal", 1, 2, 2, 10);
         new FurnaceRecipe("CoreWood", "Coal", 1, 2, 3);
@@ -64,10 +64,9 @@ public class FurnaceRecipe
 
     public float CalculatePower(int level)
     {
-        //TODO: calculate power based on level using curved
+        //TODO: calculate power based on level using curve
         return power;
     }
-
 
     public int CalculateTicks(int level)
     {
