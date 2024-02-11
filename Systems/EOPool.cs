@@ -1,6 +1,4 @@
-﻿using TheElectrician.Objects;
-
-namespace TheElectrician.Systems;
+﻿namespace TheElectrician.Systems;
 
 internal static class EOPool
 {

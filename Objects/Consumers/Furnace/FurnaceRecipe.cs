@@ -1,6 +1,4 @@
-﻿using TheElectrician.Models;
-
-namespace TheElectrician.Objects.Consumers.Furnace;
+﻿namespace TheElectrician.Objects.Consumers.Furnace;
 
 [Serializable]
 public class FurnaceRecipe
@@ -66,7 +64,7 @@ public class FurnaceRecipe
 
     public float CalculatePower(int level)
     {
-        //TODO: calculate power based on level using curve
+        //TODO: calculate power based on level using curved
         return power;
     }
 

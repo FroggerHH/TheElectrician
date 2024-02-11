@@ -1,6 +1,4 @@
-﻿using TheElectrician.Models;
-using TheElectrician.Models.Settings;
-using UnityEngine.Events;
+﻿using TheElectrician.Models.Settings;
 
 namespace TheElectrician.Objects;
 

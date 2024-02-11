@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using TheElectrician.Models;
 using TheElectrician.Objects.Mono.Wire;
-using TheElectrician.Systems.Config;
 using TheElectrician.Systems.PowerFlow;
 
 namespace TheElectrician.Objects.Mono;

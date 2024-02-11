@@ -1,6 +1,4 @@
-﻿using UnityEngine.Events;
-
-namespace TheElectrician.Models;
+﻿namespace TheElectrician.Models;
 
 public interface ILevelable : IElectricObject
 {

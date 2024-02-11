@@ -1,7 +1,5 @@
-﻿using TheElectrician.Models;
-using TheElectrician.Models.Settings;
+﻿using TheElectrician.Models.Settings;
 using TheElectrician.Objects.Mono.Wire;
-using UnityEngine.Events;
 
 namespace TheElectrician.Objects;
 
@@ -12,7 +10,7 @@ public abstract class WireConnectable : Levelable, IWireConnectable
     public float GetConductivity() => wireConnectableSettings.conductivity;
 
     private WireConnectableSettings wireConnectableSettings;
-    protected HashSet<IWireConnectable> cashedConnections { get; private set; }
+    protected HashSet<IPipeableConnectable> cashedConnections { get; private set; }
 
     public override void InitSettings(ElectricObjectSettings sett)
     {
@@ -32,20 +30,22 @@ public abstract class WireConnectable : Levelable, IWireConnectable
 
     public float GetPowerLoss() => wireConnectableSettings.powerLoss;
 
-    public virtual HashSet<IWireConnectable> GetConnections()
+    public PipeTransferMode GetTransferMode() => PipeTransferMode.Power;
+
+    public virtual HashSet<IPipeableConnectable> GetConnections()
     {
         if (IsValid() == false) return cashedConnections;
         var savedString = GetZDO().GetString(Consts.connectionsKey, "-1");
         if (savedString == "-1")
         {
-            cashedConnections = new HashSet<IWireConnectable>();
+            cashedConnections = [];
             return cashedConnections;
         }
 
         cashedConnections = savedString.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(x =>
         {
             if (Guid.TryParse(x, out var guid))
-                return Library.GetObject(guid) as IWireConnectable;
+                return Library.GetObject(guid) as IPipeableConnectable;
 
             DebugError($"Failed to parse guid: '{x}'");
             return null;
@@ -53,7 +53,7 @@ public abstract class WireConnectable : Levelable, IWireConnectable
         return cashedConnections;
     }
 
-    public virtual void AddConnection(IWireConnectable connectable)
+    public virtual void AddConnection(IPipeableConnectable connectable)
     {
         if (connectable is null) return;
         if (!CanConnect(connectable)) return;
@@ -62,7 +62,7 @@ public abstract class WireConnectable : Levelable, IWireConnectable
         connectable.AddConnection(this);
     }
 
-    public virtual void RemoveConnection(IWireConnectable connectable)
+    public virtual void RemoveConnection(IPipeableConnectable connectable)
     {
         if (connectable is null) return;
         if (!cashedConnections.Contains(connectable)) return;
@@ -71,15 +71,16 @@ public abstract class WireConnectable : Levelable, IWireConnectable
         connectable.RemoveConnection(this);
     }
 
-    public virtual void SetConnections(HashSet<IWireConnectable> connections) => cashedConnections = connections;
+    public virtual void SetConnections(HashSet<IPipeableConnectable> connections) => cashedConnections = connections;
 
     public virtual bool CanConnectOnlyToWires() => false;
 
     public virtual int GetMaxConnections() => wireConnectableSettings.maxConnections;
 
-    public bool CanConnect(IWireConnectable connectable)
+    public bool CanConnect(IPipeableConnectable connectable)
     {
         if (connectable is null) return false;
+        if (connectable.GetTransferMode() != GetTransferMode()) return false;
         if (cashedConnections.Contains(connectable)) return false;
 
         if (CanConnectOnlyToWires() && connectable is not Wire) return false;

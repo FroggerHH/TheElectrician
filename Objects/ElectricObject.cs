@@ -1,5 +1,4 @@
-﻿using TheElectrician.Models;
-using TheElectrician.Models.Settings;
+﻿using TheElectrician.Models.Settings;
 
 namespace TheElectrician.Objects;
 
@@ -40,7 +39,7 @@ public class ElectricObject : IElectricObject
         m_zdo = null;
 
         if (this is not IWireConnectable wireConnectable) return;
-        List<IWireConnectable> connections = [];
+        List<IPipeableConnectable> connections = [];
         foreach (var connection in wireConnectable.GetConnections()) connections.Add(connection);
         Debug($"Reset {wireConnectable.ToString() ?? "null"}, "
               + $"connections: {wireConnectable.GetConnections().GetString()}");

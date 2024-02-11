@@ -2,10 +2,7 @@
 using TheElectrician.Libs.LocalizationManager;
 using TheElectrician.Libs.PieceManager;
 using TheElectrician.Models.Settings;
-using TheElectrician.Objects;
-using TheElectrician.Objects.Consumers;
 using TheElectrician.Objects.Consumers.Furnace;
-using TheElectrician.Systems.Config;
 
 namespace TheElectrician;
 
@@ -42,7 +39,7 @@ public class Plugin : BaseUnityPlugin
         coalGenerator.Category.Set("TheElectrician");
         Library.Register("TE_coalGenerator", new GeneratorSettings(
             typeof(Generator), 1, 1, 32, 15, 2, 150,
-            1.5f, "Coal", 0.41f, 100));
+            6f, "Coal", 0.4f, 100));
 
         BuildPiece stoneFurnace = new(bundle, "TE_stoneFurnace");
         stoneFurnace.Name.English("Electric Furnace");

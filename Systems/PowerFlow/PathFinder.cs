@@ -1,6 +1,4 @@
-﻿using TheElectrician.Models;
-
-namespace TheElectrician.Systems.PowerFlow;
+﻿namespace TheElectrician.Systems.PowerFlow;
 
 internal static class PathFinder
 {
@@ -8,12 +6,13 @@ internal static class PathFinder
         HashSet<IWire> ignoreWires = null)
     {
         ignoreWires ??= [];
-        Dictionary<IWireConnectable, float> distances = new();
-        Dictionary<IWireConnectable, IWireConnectable> previousNodes = new();
+        Dictionary<IWireConnectable, float> distances = [];
+        Dictionary<IWireConnectable, IWireConnectable> previousNodes = [];
         HashSet<IWireConnectable> unvisitedNodes = [];
 
-        foreach (var node in start.GetConnections())
+        foreach (var node in start.GetConnections().OfType<IWireConnectable>())
         {
+            if (ignoreWires.Contains(node)) continue;
             distances[node] = GetWeight(node);
             previousNodes[node] = start;
             unvisitedNodes.Add(node);
@@ -26,7 +25,7 @@ internal static class PathFinder
             var currentNode = unvisitedNodes.OrderBy(node => distances[node]).First();
             unvisitedNodes.Remove(currentNode);
 
-            foreach (var neighbor in currentNode.GetConnections())
+            foreach (var neighbor in currentNode.GetConnections().OfType<IWireConnectable>())
             {
                 if (ignoreWires.Contains(neighbor)) continue;
                 var alt = distances[currentNode] + GetWeight(neighbor);
@@ -40,7 +39,7 @@ internal static class PathFinder
         }
 
         HashSet<IWireConnectable> path = [];
-        IWireConnectable current = end;
+        var current = end;
         while (previousNodes.ContainsKey(current))
         {
             path.Add(current);
@@ -48,6 +47,7 @@ internal static class PathFinder
         }
 
         path.Add(start);
+        if (path.Count <= 1) return [];
 
         return path.Reverse().ToHashSet();
     }

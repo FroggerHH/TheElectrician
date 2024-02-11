@@ -1,5 +1,4 @@
 ﻿using TheElectrician.Helpers;
-using TheElectrician.Models;
 using TheElectrician.Objects.Mono;
 using static TheElectrician.Helpers.ShaderHelper;
 
@@ -77,6 +76,6 @@ file static class FinishPieces
         monoFurnace.addEffect = smelter.m_oreAddedEffects;
 
         DebugWarning($"monoFurnace.doneEffect {monoFurnace.doneEffect?.ToString() ?? "null"}");
-        DebugWarning($"MonoFurnace.all {ElectricMono.GetAll().OfType<IFurnace>()}");
+        DebugWarning($"MonoFurnace.all {ElectricMono.GetAll().OfType<IFurnace>().GetString()}");
     }
 }

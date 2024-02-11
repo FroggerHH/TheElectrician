@@ -1,7 +1,5 @@
-﻿using TheElectrician.Models;
-using TheElectrician.Models.Settings;
+﻿using TheElectrician.Models.Settings;
 using TheElectrician.Objects.Mono.Wire;
-using UnityEngine.Events;
 
 namespace TheElectrician.Objects;
 
@@ -22,13 +20,13 @@ public class Wire : WireConnectable, IWire
 
     public void SetState(WireState newState) => state = newState;
 
-    public override void AddConnection(IWireConnectable connectable)
+    public override void AddConnection(IPipeableConnectable connectable)
     {
         base.AddConnection(connectable);
         SetState(WireState.Idle);
     }
 
-    public override void RemoveConnection(IWireConnectable connectable)
+    public override void RemoveConnection(IPipeableConnectable connectable)
     {
         base.RemoveConnection(connectable);
         SetState(WireState.Idle);

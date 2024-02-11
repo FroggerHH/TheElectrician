@@ -1,8 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using TheElectrician.Models;
-using TheElectrician.Objects;
 using TheElectrician.Objects.Consumers.Furnace;
-using TheElectrician.Systems.Config;
 
 namespace TheElectrician.Systems.PowerFlow;
 
@@ -39,7 +36,6 @@ public static class PowerFlow
 
     private static void TransportPowerToStorages()
     {
-        //TODO: Calculate taking into account the conductivity of the wires
         //TODO: The maximum distance between the wires (you cannot connect two wires from different sides of the world)
         //TODO: Checking the wire block (the cable cannot pass through obstacles)
 
@@ -52,7 +48,7 @@ public static class PowerFlow
                 .ToList();
 
             if (storages.Count == 0 || generators.Count == 0) continue;
-            HashSet<IWire> usedWires = new();
+            HashSet<IWire> usedWires = [];
             foreach (var storage in storages)
             {
                 if (storage.IsFull()) continue;
@@ -84,7 +80,8 @@ public static class PowerFlow
             if (resultPower == 0) break;
         }
 
-        // Debug($"Calculated {initialPower}->{resultPower} power.");
+        // Debug($"Calculated {initialPower}->{resultPower} power. "
+        //       + $"PathConductivity: {path.Select(x => x.GetConductivity()).GetString()}");
         return resultPower;
     }
 
@@ -98,29 +95,29 @@ public static class PowerFlow
             currentPowerSys = new PowerSystem();
             powerSystems.Add(currentPowerSys);
 
-            GoThroughConnections(new HashSet<IWireConnectable> { storage });
+            GoThroughConnections([storage]);
         }
 
         var connectedPowerSystems = new HashSet<PowerSystem>(powerSystems);
         foreach (var powerSys in powerSystems)
         {
-            var connected =
-                powerSystems.FirstOrDefault(x => x.GetConnections().Any(x1 => powerSys.GetConnections().Contains(x1)));
+            var connected = powerSystems.FirstOrDefault(x =>
+                x.GetConnections().Any(x1 => powerSys.GetConnections().Contains(x1)));
             if (connected != null && powerSys != connected)
             {
                 powerSys.SetConnections(powerSys.GetConnections().Union(connected.GetConnections()).ToHashSet());
-                connectedPowerSystems.Remove(connected);
+                connectedPowerSystems.RemoveWhere(x => x.Equals(connected));
             }
         }
 
         powerSystems = connectedPowerSystems;
 
-        void GoThroughConnections(HashSet<IWireConnectable> connections)
+        void GoThroughConnections(HashSet<IPipeableConnectable> connections)
         {
             foreach (var electricObject in connections)
             {
                 if (currentPowerSys.GetConnections().Contains(electricObject)) continue;
-                currentPowerSys.GetConnections().Add(electricObject);
+                currentPowerSys.GetConnections().Add(electricObject as IWireConnectable);
 
                 GoThroughConnections(electricObject.GetConnections());
             }
@@ -136,7 +133,7 @@ public static class PowerFlow
     {
         var powerSys = GetPowerSystem(consumer as IWireConnectable);
         if (powerSys == null) return false;
-        
+
         return powerSys.ConsumePower(consumer, amount);
     }
 }

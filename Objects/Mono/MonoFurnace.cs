@@ -1,5 +1,4 @@
-﻿using TheElectrician.Models;
-using TheElectrician.Objects.Consumers.Furnace;
+﻿using TheElectrician.Objects.Consumers.Furnace;
 using UnityEngine.UI;
 
 namespace TheElectrician.Objects.Mono;
@@ -181,7 +180,7 @@ public class MonoFurnace : ElectricMono, Hoverable, Interactable
             var currentRecipe = furnace.GetCurrentRecipe();
             if (currentRecipe is not null)
                 sb.AppendLine($"Current recipe: {currentRecipe}");
-            sb.AppendLine($"Power: {furnace.GetPossiblePower()}");
+            sb.AppendLine($"Power: {Math.Round(furnace.GetPossiblePower(), TheConfig.RoundingPrecision)}");
         }
 
         sb.AppendLine();

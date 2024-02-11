@@ -1,7 +1,5 @@
-﻿using TheElectrician.Models;
-using TheElectrician.Models.Settings;
+﻿using TheElectrician.Models.Settings;
 using TheElectrician.Systems.PowerFlow;
-using UnityEngine.Events;
 
 namespace TheElectrician.Objects.Consumers.Furnace;
 
@@ -67,21 +65,24 @@ public class Furnace : Storage, IFurnace
 
         if (IsFull()) return;
         currentRecipe = FindRecipe();
-        if (currentRecipe is not null)
+        if (currentRecipe is not null && HaveEnoughPower())
         {
             onProgressStarted?.Invoke();
             SetState(FurnaceState.Working);
+            // ReSharper disable once RedundantJumpStatement Keep this here, because of furnace state change
             return;
         }
     }
 
     private void UpdateWorkingState()
     {
-        if (!CanProduceRecipe(currentRecipe))
+        if (!CanProduceRecipe(currentRecipe, false))
         {
             SetState(FurnaceState.Idle);
             return;
         }
+
+        if (!HaveEnoughPower()) return;
 
         if (ticksElapsed < currentRecipe.CalculateTicks(GetLevel()))
         {
@@ -98,9 +99,9 @@ public class Furnace : Storage, IFurnace
         onProgressCompleted?.Invoke();
     }
 
-    private bool CanProduceRecipe(FurnaceRecipe recipe)
+    private bool CanProduceRecipe(FurnaceRecipe recipe, bool checkPower = true)
     {
-        var enoughPower = HaveEnoughPower(recipe);
+        var enoughPower = !checkPower || HaveEnoughPower(recipe);
         var canAdd = CanAdd(recipe.output, recipe.outputCount);
         var canAddRemove = CanRemove(recipe.input, recipe.inputCount);
 
@@ -121,7 +122,9 @@ public class Furnace : Storage, IFurnace
         onProgressChanged?.Invoke();
     }
 
-    private FurnaceRecipe FindRecipe() => cachedRecipes.FirstOrDefault(x => CanProduceRecipe(x));
+    private FurnaceRecipe FindRecipe() =>
+        cachedRecipes.FirstOrDefault(x => CanProduceRecipe(x)) ??
+        cachedRecipes.FirstOrDefault(x => CanProduceRecipe(x, false));
 
     public override string[] GetAllowedKeys() => cachedAllowedKeys;
 }

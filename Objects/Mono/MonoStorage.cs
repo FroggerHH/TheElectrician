@@ -1,6 +1,4 @@
-﻿using TheElectrician.Models;
-using TheElectrician.Objects.Mono.Wire;
-using TheElectrician.Systems.Config;
+﻿using TheElectrician.Objects.Mono.Wire;
 
 namespace TheElectrician.Objects.Mono;
 

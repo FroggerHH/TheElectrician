@@ -1,10 +1,8 @@
-﻿using TheElectrician.Models;
+﻿namespace TheElectrician.Systems.PowerFlow;
 
-namespace TheElectrician.Systems.PowerFlow;
-
-public class PowerSystem
+public class PowerSystem : IEquatable<PowerSystem>
 {
-    private HashSet<IWireConnectable> connections = new();
+    private HashSet<IWireConnectable> connections = [];
 
     public float GetPowerStored() { return connections.OfType<IStorage>().Sum(x => x.Count(Consts.storagePowerKey)); }
 
@@ -28,15 +26,14 @@ public class PowerSystem
         var usedWires = new HashSet<IWire>();
         foreach (var storage in storages)
         {
-            //TODO: Fix this dumb shit
             var path = PathFinder.FindBestPath(storage, element, usedWires);
             if (path.Count == 0) continue;
-            var wires = path.OfType<IWire>();
+            var wires = path.OfType<IWire>().ToList();
             foreach (var wire in wires) usedWires.Add(wire);
             power += PowerFlow.CalculatePower(storage.Count(Consts.storagePowerKey), path);
         }
 
-        return power;
+        return Clamp(power, 0, element.GetConductivity());
     }
 
     private List<IStorage> GetStorages() { return connections.OfType<IStorage>().ToList(); }
@@ -63,7 +60,7 @@ public class PowerSystem
             if (power <= float.Epsilon) continue;
             storagesWithPower.Add(storage, power);
         }
-        
+
         if (storagesWithPower.Count == 0) return false;
         if (storagesWithPower.Sum(x => x.Value) < amount) return false;
         storagesWithPower = storagesWithPower.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
@@ -83,4 +80,22 @@ public class PowerSystem
 
         return true;
     }
+
+    public bool Equals(PowerSystem other)
+    {
+        if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
+
+        return connections.SetEquals(other.connections);
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != this.GetType()) return false;
+        return Equals((PowerSystem)obj);
+    }
+
+    public override int GetHashCode() => connections != null ? connections.GetHashCode() : 0;
 }

@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using TheElectrician.Systems.Config;
 
 namespace TheElectrician.Systems;
 

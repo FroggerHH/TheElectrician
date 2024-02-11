@@ -1,7 +1,4 @@
-﻿using TheElectrician.Models;
-using TheElectrician.Objects;
-
-namespace TheElectrician.Systems;
+﻿namespace TheElectrician.Systems;
 
 internal static class EOLifeHandler
 {

@@ -1,6 +1,4 @@
-﻿using TheElectrician.Models;
-
-namespace TheElectrician.Objects.Mono;
+﻿namespace TheElectrician.Objects.Mono;
 
 public class MonoGenerator : ElectricMono, Hoverable, Interactable
 {

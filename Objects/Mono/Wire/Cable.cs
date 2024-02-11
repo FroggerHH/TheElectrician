@@ -1,6 +1,3 @@
-using TheElectrician.Models;
-using TheElectrician.Systems.Config;
-
 namespace TheElectrician.Objects.Mono.Wire;
 
 public class Cable : MonoBehaviour
