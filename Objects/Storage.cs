@@ -37,6 +37,8 @@ public class Storage : WireConnectable, IStorage
             return cashedStored;
         }
 
+        if (!savedString.IsGood()) return [];
+
         cashedStored = savedString
             .Split(';')
             .Select(x => x.Split(':'))
@@ -169,17 +171,11 @@ public class Storage : WireConnectable, IStorage
 
     public override bool CanConnectOnlyToWires() => true;
 
-    public override string ToString()
-    {
-        if (!IsValid()) return "Uninitialized Storage";
-        return $"Storage {GetId()} stored: {cashedStored.GetString()}";
-    }
-
     private void UpdateCurrentStored()
     {
         cashedStored = cashedStored.Where(x => x.Value > 0).ToDictionary(x => x.Key, x => x.Value);
-        var join = string.Join(";", cashedStored.Select(x => $"{x.Key}:{x.Value}"));
         if (!IsValid()) return;
+        var join = string.Join(";", cashedStored.Select(x => $"{x.Key}:{x.Value}"));
         onStorageChanged?.Invoke();
         GetZDO().Set(Consts.storageKey, join);
     }

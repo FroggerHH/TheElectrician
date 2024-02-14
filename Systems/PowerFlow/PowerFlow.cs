@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using TheElectrician.Extensions;
-using TheElectrician.Objects.Consumers.Furnace;
 
 namespace TheElectrician.Systems.PowerFlow;
 
@@ -31,6 +30,7 @@ public static class PowerFlow
 
     private static void Update()
     {
+        PathFinder.ClearCache();
         FormPowerSystems();
         TransportPowerToStorages();
     }
@@ -43,14 +43,14 @@ public static class PowerFlow
         foreach (var powerSys in powerSystems)
         {
             var storages = powerSys.GetStorages()
-                .Where(x => x is not IGenerator && x is not IConsumer && !x.IsFull())
+                .Where(x => x is not IGenerator && x is not IConsumer
+                                                && x.CanAccept(Consts.storagePowerKey) && !x.IsFull())
                 .OrderBy(x => x.GetPower()).ToList();
             var generators = powerSys.GetConnections().OfType<IGenerator>()
                 .Where(x => x.GetPower() > 0).OrderByDescending(x => x.GetPower())
                 .ToList();
 
             if (storages.Count == 0 || generators.Count == 0) continue;
-            HashSet<IWire> usedWires = [];
             foreach (var storage in storages)
             {
                 // Debug($"storage {storage.GetObjectString()}");
@@ -60,28 +60,44 @@ public static class PowerFlow
                     var toAdd = Min(storage.FreeSpace(), gen.GetPower());
                     if (toAdd == 0) continue;
 
-                    var path = PathFinder.FindBestPath(storage, gen, usedWires);
-                    var wires = path.OfType<IWire>();
-                    foreach (var wire in wires) usedWires.Add(wire);
-
+                    var path = PathFinder.FindBestPath(storage, gen);
                     if (path.Count == 0) continue;
-                    toAdd = CalculatePower(toAdd, path);
+                    var calculatedPower = CalculatePower(toAdd, path);
+                    gen.TransferTo(storage, Consts.storagePowerKey, calculatedPower);
+                    PathFinder.ApplyPath(path, toAdd);
 
-                    gen.TransferTo(storage, Consts.storagePowerKey, toAdd);
                     return;
                 }
             }
         }
     }
 
-    public static float CalculatePower(float initialPower, HashSet<IWireConnectable> path)
+    public static float CalculatePower(float initialPower, HashSet<IWireConnectable> path,
+        Dictionary<IWire, float> virtualWiresConductivityCache = null, bool checkVirtualAndRealCache = false)
     {
         var resultPower = initialPower;
+
+        var conductivityCacheToCheck = PathFinder.wiresConductivityCache;
+        if (virtualWiresConductivityCache != null)
+            if (checkVirtualAndRealCache)
+            {
+                foreach (var pair in virtualWiresConductivityCache)
+                    if (!conductivityCacheToCheck.ContainsKey(pair.Key))
+                        conductivityCacheToCheck.Add(pair.Key, pair.Value);
+                    else if (conductivityCacheToCheck[pair.Key] < pair.Value)
+                        conductivityCacheToCheck[pair.Key] = pair.Value;
+            } else
+                conductivityCacheToCheck = virtualWiresConductivityCache;
+
+
         foreach (var point in path)
         {
-            resultPower = Clamp(initialPower, 0, point.GetConductivity());
+            resultPower = Clamp(resultPower, 0, point.GetConductivity());
+            if (point is IWire wire && conductivityCacheToCheck.TryGetValue(wire, out var powerUsed))
+                resultPower = Clamp(resultPower, 0, wire.GetConductivity() - powerUsed);
+
             resultPower *= 1 - (point.GetPowerLoss() / 100);
-            if (resultPower == 0) break;
+            if (resultPower <= float.Epsilon) break;
         }
 
         // Debug($"Calculated {initialPower}->{resultPower} power. "
@@ -107,7 +123,7 @@ public static class PowerFlow
         {
             var connected = powerSystems.FirstOrDefault(x =>
                 x.GetConnections().Any(x1 => powerSys.GetConnections().Contains(x1)));
-            if (connected != null && powerSys != connected)
+            if (connected != null && !powerSys.Equals(connected))
             {
                 powerSys.SetConnections(powerSys.GetConnections().Union(connected.GetConnections()).ToHashSet());
                 connectedPowerSystems.RemoveWhere(x => x.Equals(connected));

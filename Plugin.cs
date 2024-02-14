@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using BepInEx;
+using TheElectrician.InGameDev;
 using TheElectrician.Libs.LocalizationManager;
 using TheElectrician.Libs.PieceManager;
 using TheElectrician.Models.Settings;
@@ -25,6 +26,8 @@ public class Plugin : BaseUnityPlugin
         AddFurnaceRecipes();
         AddBuildPieces();
     }
+
+    private void Update() { HotKeys.Update(); }
 
     [SuppressMessage("ReSharper", "ObjectCreationAsStatement")]
     private void AddFurnaceRecipes()
@@ -64,7 +67,7 @@ public class Plugin : BaseUnityPlugin
         coalGenerator.RequiredItems.Add("SurtlingCore", 4, true);
         coalGenerator.Category.Set("TheElectrician");
         Library.Register("TE_coalGenerator", new GeneratorSettings(
-            typeof(Generator), 1, 1, 32, 15, 2, 150,
+            typeof(Generator), 1, 1, 15, 2, 150,
             6f, "Coal", 0.4f, 100));
 
         BuildPiece stoneFurnace = new(bundle, "TE_stoneFurnace");
@@ -78,7 +81,7 @@ public class Plugin : BaseUnityPlugin
         stoneFurnace.RequiredItems.Add("SurtlingCore", 20, true);
         stoneFurnace.Category.Set("TheElectrician");
         Library.Register("TE_stoneFurnace", new FurnaceSettings(
-            typeof(Furnace), 1, 1, 32, 15, 2, 150));
+            typeof(Furnace), 1, 1, 15, 2, 150));
 
         BuildPiece woodWire = new(bundle, "TE_woodWire");
         woodWire.Name.English("Wire fastening");

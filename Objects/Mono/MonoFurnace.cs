@@ -73,6 +73,39 @@ public class MonoFurnace : ElectricMono, Hoverable, Interactable
 
         var cameraDirection = _camera.transform.forward;
         canvas.transform.rotation = Quaternion.LookRotation(cameraDirection);
+
+        // if (m_localPlayer)
+        // {
+        //     var allMono = GetAll();
+        //
+        //     foreach (var mono in allMono)
+        //     {
+        //         if (!mono || mono.gameObject == gameObject) continue;
+        //         foreach (var meshRenderer in mono.GetComponentsInChildren<MeshRenderer>())
+        //         {
+        //             if (!meshRenderer) continue;
+        //             meshRenderer.material.color = Color.red; 
+        //         }
+        //     }
+        //
+        //     if (m_localPlayer.m_hovering && m_localPlayer.m_hovering.transform.root?.gameObject == gameObject)
+        //     {
+        //         var f1 = furnace as Furnace;
+        //         if (f1 is null) return;
+        //         foreach (var point in f1.path)
+        //         {
+        //             if (point is null) continue;
+        //             var pointMono = allMono.Find(x => x.GetId() == point.GetId());
+        //             if (pointMono is null) continue;
+        //
+        //             foreach (var meshRenderer in pointMono.GetComponentsInChildren<MeshRenderer>())
+        //             {
+        //                 if (!meshRenderer) continue;
+        //                 meshRenderer.material.color = Color.green;
+        //             }
+        //         }
+        //     }
+        // }
     }
 
     private void UpdateVisual()

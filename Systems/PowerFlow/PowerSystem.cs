@@ -23,15 +23,24 @@ public class PowerSystem : IEquatable<PowerSystem>
 
         float power = 0;
 
+        var localCashedConnections = new Dictionary<IWire, float>();
         var storages = GetStorages().OrderByDescending(x => x.GetPower());
-        var usedWires = new HashSet<IWire>();
         foreach (var storage in storages)
         {
-            var path = PathFinder.FindBestPath(storage, element, usedWires);
-            if (path.Count == 0) continue;
-            var wires = path.OfType<IWire>().ToList();
-            foreach (var wire in wires) usedWires.Add(wire);
-            power += PowerFlow.CalculatePower(storage.GetPower(), path);
+            var path = PathFinder.FindBestPath(storage, element, localCashedConnections, true);
+            if (path.Count == 0)
+                continue;
+
+            var initialPower = storage.GetPower();
+            var calculatePower = PowerFlow.CalculatePower(initialPower, path,localCashedConnections, true);
+            power += calculatePower;
+            PathFinder.ApplyPathToVirtualConductivityCache(path, initialPower, localCashedConnections);
+            
+            // Debug($"GetPossiblePowerInElement storage: {storage.GetType().Name}, "
+            //       + $"path: {path.Count}, "
+            //       + $"initialPower:{initialPower}_calculatePower:{calculatePower}"
+            //       + $"localCashedConnections: {localCashedConnections.Select(x => x.Value).GetString("|")}, "
+            //       + $"min: {localCashedConnections.Select(pair => pair.Key.GetConductivity() - pair.Value).Min()}");
         }
 
         return Clamp(power, 0, element.GetConductivity());
@@ -47,19 +56,15 @@ public class PowerSystem : IEquatable<PowerSystem>
         if (!ContainsConnection(asWireConn)) return false;
 
         var storages = GetStorages();
-        var usedWires = new HashSet<IWire>();
-        var storagesWithPower = new Dictionary<IStorage, float>();
+        var storagesWithPower = new Dictionary<(IStorage storage, HashSet<IWireConnectable> pathToIt), float>();
 
         foreach (var storage in storages)
         {
-            var path = PathFinder.FindBestPath(storage, asWireConn, usedWires);
+            var path = PathFinder.FindBestPath(storage, asWireConn);
             if (path.Count == 0) continue;
-            var wires = path.OfType<IWire>();
-            foreach (var wire in wires) usedWires.Add(wire);
-
             var power = PowerFlow.CalculatePower(storage.Count(Consts.storagePowerKey), path);
             if (power <= float.Epsilon) continue;
-            storagesWithPower.Add(storage, power);
+            storagesWithPower.Add((storage, path), power);
         }
 
         if (storagesWithPower.Count == 0) return false;
@@ -69,14 +74,15 @@ public class PowerSystem : IEquatable<PowerSystem>
         var consumedPower = 0f;
         foreach (var pair in storagesWithPower)
         {
-            var storage = pair.Key;
+            var storageData = pair.Key;
             var powerStored = pair.Value;
 
             if (consumedPower >= amount) break;
 
             var toConsume = Min(amount - consumedPower, powerStored);
             consumedPower += toConsume;
-            storage.Remove(Consts.storagePowerKey, toConsume);
+            storageData.storage.Remove(Consts.storagePowerKey, toConsume);
+            PathFinder.ApplyPath(storageData.pathToIt, toConsume);
         }
 
         return true;

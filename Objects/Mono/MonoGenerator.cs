@@ -144,8 +144,8 @@ public class MonoGenerator : ElectricMono, Hoverable, Interactable
 
     private void UpdateVisual()
     {
-        enabledVisual.SetActive(generator.HasFuel());
-        itemPreview.SetActive(generator.Count(generator.GetFuelItem()) > 0);
+        enabledVisual.SetActive(generator.HasFuel() && !generator.IsFull() && !generator.IsEmpty());
+        itemPreview.SetActive(generator.Count(generator.GetFuelItem()) > float.Epsilon);
     }
 
     public void OnDestroyed()

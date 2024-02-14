@@ -8,6 +8,7 @@ public class MonoStorage : ElectricMono, Interactable
 
     public override void OnDestroy()
     {
+        base.OnDestroy();
         if (!netView || !netView.IsValid() || !storage.IsValid()) return;
         DropAll();
     }

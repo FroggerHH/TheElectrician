@@ -55,10 +55,4 @@ public class Generator : Storage, IGenerator
     public int GetMaxFuel() => generatorSettings.maxFuel;
 
     public float GetFuelPerTick() => generatorSettings.fuelPerTick;
-
-    public override string ToString()
-    {
-        if (!IsValid()) return "Uninitialized Generator";
-        return $"Generator {GetId()}, zdo: {GetZDO()}";
-    }
 }

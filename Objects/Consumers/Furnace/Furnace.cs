@@ -46,9 +46,9 @@ public class Furnace : Storage, IFurnace
         cachedRecipes = FurnaceRecipe.GetAllRecipes(level);
         cachedAllowedKeys = cachedRecipes.Select(x => x.output).Union(cachedRecipes.Select(x => x.input)).ToArray();
 
-        onProgressChanged = new();
-        onProgressCompleted = new();
-        onProgressStarted = new();
+        onProgressChanged = new UnityEvent();
+        onProgressCompleted = new UnityEvent();
+        onProgressStarted = new UnityEvent();
     }
 
     public float GetPossiblePower() => currentPower;
@@ -92,12 +92,18 @@ public class Furnace : Storage, IFurnace
         }
 
         onProgressChanged?.Invoke();
-        Add(currentRecipe.output, currentRecipe.outputCount);
-        Remove(currentRecipe.input, currentRecipe.inputCount);
-        PowerFlow.ConsumePower(this, GetPowerNeeded());
-        // SetState(FurnaceState.Idle);
+        var consumePowerResult = PowerFlow.ConsumePower(this, GetPowerNeeded());
+        if (consumePowerResult)
+        {
+            Add(currentRecipe.output, currentRecipe.outputCount);
+            Remove(currentRecipe.input, currentRecipe.inputCount);
+            onProgressCompleted?.Invoke();
+        }
+
         ticksElapsed = 0;
-        onProgressCompleted?.Invoke();
+
+        Debug($"Furnace ConsumePower: {consumePowerResult}");
+        // SetState(FurnaceState.Idle);
     }
 
     private bool CanProduceRecipe(FurnaceRecipe recipe, bool checkPower = true)
@@ -128,10 +134,4 @@ public class Furnace : Storage, IFurnace
         cachedRecipes.FirstOrDefault(x => CanProduceRecipe(x, false));
 
     public override string[] GetAllowedKeys() => cachedAllowedKeys;
-
-    public override string ToString()
-    {
-        if (!IsValid()) return "Uninitialized Furnace";
-        return $"Furnace {GetId()} level: {GetLevel()}";
-    }
 }
