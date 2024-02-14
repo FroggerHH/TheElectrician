@@ -30,6 +30,7 @@ Me on Thunderstore - <a href="https://valheim.thunderstore.io/package/Frogger/">
 <img alt="Thunderstore Logo" src="https://gcdn.thunderstore.io/live/community/valheim/PNG_color_logo_only_1_transparent.png" width="14"/>
 Frogger Mods</a><br>
 ## TODOs
+* Add item pipes
 * Add compendium page
 * calculate power based on level using curve
 * calculate ticks based on level using curve
