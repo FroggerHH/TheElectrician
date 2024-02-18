@@ -15,7 +15,7 @@ internal static class HotKeys
     private static void FillStorage()
     {
         var storage = GetHoveringStorage();
-        storage?.Add(Consts.storagePowerKey, storage.FreeSpace());
+        storage?.Add(Consts.storagePowerKey, storage.FreeSpace(true));
     }
 
     [CanBeNull]

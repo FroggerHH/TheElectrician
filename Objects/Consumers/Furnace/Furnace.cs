@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using TheElectrician.Extensions;
 using TheElectrician.Models.Settings;
 using TheElectrician.Systems.PowerFlow;
 
@@ -6,7 +7,6 @@ namespace TheElectrician.Objects.Consumers.Furnace;
 
 public class Furnace : Storage, IFurnace
 {
-    private float currentPower;
     private List<FurnaceRecipe> cachedRecipes;
     private string[] cachedAllowedKeys;
     private FurnaceSettings furnaceSettings;
@@ -44,27 +44,26 @@ public class Furnace : Storage, IFurnace
         base.InitData();
         var level = GetLevel();
         cachedRecipes = FurnaceRecipe.GetAllRecipes(level);
-        cachedAllowedKeys = cachedRecipes.Select(x => x.output).Union(cachedRecipes.Select(x => x.input)).ToArray();
+        var list = cachedRecipes.Select(x => x.output).Union(cachedRecipes.Select(x => x.input)).ToList();
+        list.Add(Consts.storagePowerKey);
+        cachedAllowedKeys = list.ToArray();
 
         onProgressChanged = new UnityEvent();
         onProgressCompleted = new UnityEvent();
         onProgressStarted = new UnityEvent();
     }
 
-    public float GetPossiblePower() => currentPower;
-
     public override void Update()
     {
         base.Update();
         if (!IsValid()) return;
-        currentPower = PowerFlow.GetPowerSystem(this)?.GetPossiblePowerInElement(this) ?? 0;
         if (IsInWorkingState())
         {
             UpdateWorkingState();
             return;
         }
 
-        if (IsFull()) return;
+        if (IsFull(false)) return;
         currentRecipe = FindRecipe();
         if (currentRecipe is not null && HaveEnoughPower())
         {
@@ -92,7 +91,9 @@ public class Furnace : Storage, IFurnace
         }
 
         onProgressChanged?.Invoke();
-        var consumePowerResult = PowerFlow.ConsumePower(this, GetPowerNeeded());
+        var powerNeeded = GetPowerNeeded();
+        var currentPower = this.GetPower();
+        var consumePowerResult = Remove(Consts.storagePowerKey, powerNeeded);
         if (consumePowerResult)
         {
             Add(currentRecipe.output, currentRecipe.outputCount);
@@ -102,8 +103,7 @@ public class Furnace : Storage, IFurnace
 
         ticksElapsed = 0;
 
-        Debug($"Furnace ConsumePower: {consumePowerResult}");
-        // SetState(FurnaceState.Idle);
+        Debug($"Furnace ConsumePower: {consumePowerResult}, {powerNeeded}/{currentPower}");
     }
 
     private bool CanProduceRecipe(FurnaceRecipe recipe, bool checkPower = true)
@@ -117,11 +117,10 @@ public class Furnace : Storage, IFurnace
 
     public bool HaveEnoughPower() => HaveEnoughPower(currentRecipe);
 
-    public bool HaveEnoughPower(FurnaceRecipe recipe) => currentPower >= GetPowerNeeded(recipe);
+    public bool HaveEnoughPower(FurnaceRecipe recipe) => this.GetPower() >= GetPowerNeeded(recipe);
 
     private float GetPowerNeeded(FurnaceRecipe recipe) { return recipe?.CalculatePower(GetLevel()) ?? 0.001f; }
     private float GetPowerNeeded() => GetPowerNeeded(currentRecipe);
-
 
     private void AddProgress()
     {

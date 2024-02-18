@@ -29,7 +29,8 @@ public class MonoGenerator : ElectricMono, Hoverable, Interactable
 
         sb.AppendLine();
         sb.AppendLine($"[<color=yellow><b>$KEY_Use</b></color>] $piece_smelter_add {fuelItemName}".Localize());
-        sb.AppendLine($"${ModName}_storage_capacity".Localize() + ": " + generator.GetCapacity());
+        sb.AppendLine(string.Format($"${ModName}_storage_capacity_format".Localize(), generator.GetPowerCapacity(),
+            generator.GetOtherCapacity()));
 
         if (!generator.CanAdd(Consts.storagePowerKey, generator.GetPowerPerTick()))
             sb.AppendLine($"<color=#F448B2>${ModName}_generator_is_full  </color>".Localize());
@@ -144,7 +145,7 @@ public class MonoGenerator : ElectricMono, Hoverable, Interactable
 
     private void UpdateVisual()
     {
-        enabledVisual.SetActive(generator.HasFuel() && !generator.IsFull() && !generator.IsEmpty());
+        enabledVisual.SetActive(generator.HasFuel() && !generator.IsFull(false) && !generator.IsEmpty(false));
         itemPreview.SetActive(generator.Count(generator.GetFuelItem()) > float.Epsilon);
     }
 

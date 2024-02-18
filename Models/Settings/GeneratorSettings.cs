@@ -6,12 +6,13 @@ public class GeneratorSettings(
     int maxLevel,
     int powerLoss,
     int maxConnections,
-    int capacity,
+    int powerCapacity,
+    int otherCapacity,
     float powerPerTick,
     string fuelItem,
     float fuelPerTick,
     int maxFuel)
-    : StorageSettings(type, startLevel, maxLevel, int.MaxValue, powerLoss, maxConnections, capacity,
+    : StorageSettings(type, startLevel, maxLevel, int.MaxValue, powerLoss, maxConnections, powerCapacity, otherCapacity,
         [fuelItem, Consts.storagePowerKey])
 {
     public readonly string fuelItem = fuelItem;

@@ -82,7 +82,7 @@ internal static class PathFinder
     public static void ClearCache()
     {
         wiresConductivityCache.Clear();
-        Debug($"--- Cleared wires cache ---");
+        // Debug($"--- Cleared wires cache ---");
     }
 
     public static void ApplyPathToVirtualConductivityCache(IEnumerable<IWireConnectable> path_, float powerSignal,
@@ -112,5 +112,14 @@ internal static class PathFinder
             if (wiresConductivityCache.ContainsKey(wire)) wiresConductivityCache[wire] += calculatePower;
             else wiresConductivityCache.Add(wire, calculatePower);
         }
+    }
+
+    public static bool IsPathAvailable(HashSet<IWireConnectable> path)
+    {
+        foreach (var node in path)
+            if (IsWireTooBusy(node, wiresConductivityCache))
+                return false;
+
+        return true;
     }
 }

@@ -6,5 +6,6 @@ public class FurnaceSettings(
     int maxLevel,
     float powerLoss,
     int maxConnections,
-    int capacity)
-    : StorageSettings(type, startLevel, maxLevel, int.MaxValue, powerLoss, maxConnections, capacity);
+    int powerCapacity,
+    int otherCapacity)
+    : ConsumerSettings(type, startLevel, maxLevel, int.MaxValue, powerLoss, maxConnections, powerCapacity, otherCapacity);

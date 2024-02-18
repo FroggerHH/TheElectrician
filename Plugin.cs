@@ -67,7 +67,7 @@ public class Plugin : BaseUnityPlugin
         coalGenerator.RequiredItems.Add("SurtlingCore", 4, true);
         coalGenerator.Category.Set("TheElectrician");
         Library.Register("TE_coalGenerator", new GeneratorSettings(
-            typeof(Generator), 1, 1, 15, 2, 150,
+            typeof(Generator), 1, 1, 15, 2, 60, 150,
             6f, "Coal", 0.4f, 100));
 
         BuildPiece stoneFurnace = new(bundle, "TE_stoneFurnace");
@@ -81,7 +81,7 @@ public class Plugin : BaseUnityPlugin
         stoneFurnace.RequiredItems.Add("SurtlingCore", 20, true);
         stoneFurnace.Category.Set("TheElectrician");
         Library.Register("TE_stoneFurnace", new FurnaceSettings(
-            typeof(Furnace), 1, 1, 15, 2, 150));
+            typeof(Furnace), 1, 1, 15, 2, 50, 150));
 
         BuildPiece woodWire = new(bundle, "TE_woodWire");
         woodWire.Name.English("Wire fastening");
@@ -102,6 +102,6 @@ public class Plugin : BaseUnityPlugin
         woodStorage.RequiredItems.Add("Resin", 35, true);
         woodStorage.Category.Set("TheElectrician");
         Library.Register("TE_woodenStorage",
-            new StorageSettings(typeof(Storage), 0, 0, 32f, 10f, 3, 100, [Consts.storagePowerKey]));
+            new StorageSettings(typeof(Storage), 0, 0, 32f, 10f, 3, 120, 0, [Consts.storagePowerKey]));
     }
 }

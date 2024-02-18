@@ -7,12 +7,14 @@ public class StorageSettings(
     float conductivity,
     float powerLoss,
     int maxConnections,
-    int capacity,
+    int powerCapacity,
+    int otherCapacity,
     string[] allowedKeys = null)
     : WireConnectableSettings(type, startLevel, maxLevel, conductivity, powerLoss, maxConnections)
 {
-    public readonly int capacity = capacity;
+    public int otherCapacity = otherCapacity;
+    public readonly int powerCapacity = powerCapacity;
     public readonly string[] allowedKeys = allowedKeys ?? [Consts.storagePowerKey];
 
-    public override string ToString() => $"{base.ToString()} capacity={capacity} allowedKeys={allowedKeys}";
+    public override string ToString() => $"{base.ToString()} powerCapacity={powerCapacity} otherCapacity={otherCapacity} allowedKeys={allowedKeys}";
 }

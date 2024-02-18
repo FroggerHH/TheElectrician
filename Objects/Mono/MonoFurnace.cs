@@ -1,4 +1,5 @@
-﻿using TheElectrician.Objects.Consumers.Furnace;
+﻿using TheElectrician.Extensions;
+using TheElectrician.Objects.Consumers.Furnace;
 using UnityEngine.UI;
 
 namespace TheElectrician.Objects.Mono;
@@ -147,7 +148,7 @@ public class MonoFurnace : ElectricMono, Hoverable, Interactable
             return false;
         m_lastUseTime = Time.time;
 
-        if (furnace.IsFull())
+        if (furnace.IsFull(false))
         {
             m_localPlayer.Message(MessageHud.MessageType.Center, "$msg_itsfull");
             return false;
@@ -180,7 +181,7 @@ public class MonoFurnace : ElectricMono, Hoverable, Interactable
 
     public bool UseItem(Humanoid user, ItemData item)
     {
-        if (furnace.IsFull())
+        if (furnace.IsFull(false))
         {
             m_localPlayer.Message(MessageHud.MessageType.Center, "$msg_itsfull");
             return false;
@@ -217,27 +218,30 @@ public class MonoFurnace : ElectricMono, Hoverable, Interactable
 
         sb.AppendLine(piece.m_name.Localize());
         var level = furnace.GetLevel();
+        var recipe = furnace.GetCurrentRecipe();
         if (m_debugMode)
         {
             sb.AppendLine($"ID: {furnace.GetId()}");
             sb.AppendLine($"Level: {level} ({$"${ModName}_level_{level}".Localize()})");
-            var currentRecipe = furnace.GetCurrentRecipe();
+            var currentRecipe = recipe;
             if (currentRecipe is not null)
                 sb.AppendLine($"Current recipe: {currentRecipe}");
-            sb.AppendLine($"Power: {Math.Round(furnace.GetPossiblePower(), TheConfig.RoundingPrecision)}");
+            sb.AppendLine($"Power: {Math.Round(furnace.GetPower(), TheConfig.RoundingPrecision)}");
         }
 
         sb.AppendLine();
         // sb.AppendLine($"${ModName}_level ${ModName}_level_{level}".Localize());
-        sb.AppendLine($"${ModName}_storage_capacity".Localize() + ": " + furnace.GetCapacity());
+        sb.AppendLine(string.Format($"${ModName}_storage_capacity_format".Localize(), furnace.GetPowerCapacity(),
+            furnace.GetOtherCapacity()));
+        if (!furnace.HaveEnoughPower() && !furnace.IsInWorkingState() && recipe is not null)
+            sb.AppendLine($"<color=#F448B2>${ModName}_furnace_low_power </color>".Localize());
         if (furnace.IsInWorkingState())
         {
             sb.Append("<color=#F6E68B>");
-            sb.AppendLine($"${ModName}_furnace_is_working".Localize());
             if (!furnace.HaveEnoughPower())
                 sb.AppendLine($"<color=#F448B2>${ModName}_furnace_low_power </color>".Localize());
+            sb.AppendLine($"${ModName}_furnace_is_working".Localize());
             var progress = furnace.GetProgress();
-            var recipe = furnace.GetCurrentRecipe();
             var inputItem = ObjectDB.instance.GetItem(recipe.input)?.LocalizeName() ?? "???";
             var outputItem = ObjectDB.instance.GetItem(recipe.output)?.LocalizeName() ?? "???";
             var outputCount = recipe.outputCount == 1 ? outputItem : string.Empty;

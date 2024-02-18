@@ -9,13 +9,14 @@ public interface IStorage : IWireConnectable
     void SetStored(string key, float stored);
     bool Add(string key, float amount);
     bool Remove(string key, float amount);
-    int GetCapacity();
-    bool IsFull();
-    bool IsEmpty();
+    int GetPowerCapacity();
+    int GetOtherCapacity();
+    bool IsFull(bool power);
+    bool IsEmpty(bool power);
     void Clear();
     bool CanAdd(string key, float amount);
     bool CanRemove(string key, float amount);
-    float FreeSpace();
+    float FreeSpace(bool power);
     string[] GetAllowedKeys();
     bool CanAccept(string key);
 
