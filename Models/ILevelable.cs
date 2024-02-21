@@ -6,7 +6,7 @@ public interface ILevelable : IElectricObject
 
     int GetStartLevel();
     int GetLevel();
-    bool SetLevel(int level);
+    bool SetLevel(int level, bool ignoreMaxLevel = false);
     bool AddLevel(int amount = 1);
     bool RemoveLevel(int amount = 1);
     int GetMaxLevel();

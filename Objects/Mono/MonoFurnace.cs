@@ -1,5 +1,6 @@
 ﻿using TheElectrician.Extensions;
 using TheElectrician.Objects.Consumers.Furnace;
+using TheElectrician.Objects.Mono.Helpers;
 using UnityEngine.UI;
 
 namespace TheElectrician.Objects.Mono;
@@ -217,22 +218,16 @@ public class MonoFurnace : ElectricMono, Hoverable, Interactable
         if (furnace == null || !furnace.IsValid()) return string.Empty;
 
         sb.AppendLine(piece.m_name.Localize());
-        var level = furnace.GetLevel();
         var recipe = furnace.GetCurrentRecipe();
-        if (m_debugMode)
+        if (MonoHoverHelper.DebugText(furnace, out var debugText))
         {
-            sb.AppendLine($"ID: {furnace.GetId()}");
-            sb.AppendLine($"Level: {level} ({$"${ModName}_level_{level}".Localize()})");
-            var currentRecipe = recipe;
-            if (currentRecipe is not null)
-                sb.AppendLine($"Current recipe: {currentRecipe}");
+            sb.AppendLine(debugText);
+            if (recipe is not null) sb.AppendLine($"Current recipe: {recipe}");
             sb.AppendLine($"Power: {Math.Round(furnace.GetPower(), TheConfig.RoundingPrecision)}");
         }
 
         sb.AppendLine();
-        // sb.AppendLine($"${ModName}_level ${ModName}_level_{level}".Localize());
-        sb.AppendLine(string.Format($"${ModName}_storage_capacity_format".Localize(), furnace.GetPowerCapacity(),
-            furnace.GetOtherCapacity()));
+        sb.AppendLine(MonoHoverHelper.CapacityText(furnace));
         if (!furnace.HaveEnoughPower() && !furnace.IsInWorkingState() && recipe is not null)
             sb.AppendLine($"<color=#F448B2>${ModName}_furnace_low_power </color>".Localize());
         if (furnace.IsInWorkingState())
@@ -257,7 +252,7 @@ public class MonoFurnace : ElectricMono, Hoverable, Interactable
             sb.Append("</color>");
         }
 
-        sb.AppendLine(MonoStorage.StoredText(furnace));
+        sb.AppendLine(MonoHoverHelper.StoredText(furnace));
         return sb.ToString();
     }
 

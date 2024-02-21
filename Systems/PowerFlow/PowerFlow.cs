@@ -51,13 +51,11 @@ public static class PowerFlow
                 .Where(x => !x.IsEmpty(true)).OrderByDescending(x => x.GetPower())
                 .ToList();
 
-            Debug(
-                $"allStorages: {allStorages.Count}, consumers: {consumers.Count}, storages: {storages.Count}, generators: {generators.Count}");
-
             if (storages.Count == 0) continue;
             foreach (var consumer in consumers)
             {
                 if (consumer.IsFull(true)) continue;
+
                 foreach (var st in storages)
                 {
                     var initialPowerToAdd = Min(consumer.FreeSpace(true), st.GetPower());
@@ -72,10 +70,14 @@ public static class PowerFlow
                 }
             }
 
-            if (generators.Count != 0) continue;
+            if (generators.Count == 0) continue;
             foreach (var storage in storages)
             {
-                if (storage.IsFull(true)) continue;
+                if (storage.IsFull(true))
+                {
+                    continue;
+                }
+
                 foreach (var gen in generators)
                 {
                     var initialPowerToAdd = Min(storage.FreeSpace(true), gen.GetPower());
@@ -83,8 +85,11 @@ public static class PowerFlow
 
                     var path = PathFinder.FindBestPath(storage, gen);
                     if (path.Count == 0) continue;
+
                     var calculatedPower = CalculatePower(initialPowerToAdd, path);
+                    Debug($"PowerFlow 14");
                     if (calculatedPower <= float.Epsilon) continue;
+
                     gen.TransferTo(storage, Consts.storagePowerKey, calculatedPower);
                     PathFinder.ApplyPath(path, initialPowerToAdd);
                 }

@@ -101,6 +101,7 @@
         <Compile Include="Helpers\PrefabHelper.cs" />
         <Compile Include="Helpers\ShaderHelper.cs" />
         <Compile Include="InGameDev\HotKeys.cs" />
+        <Compile Include="InGameDev\TerminalCommands.cs" />
         <Compile Include="Libs\LocalizationManager\LocalizationManager.cs" />
         <Compile Include="Libs\PieceManager\PieceManager.cs" />
         <Compile Include="Models\IConsumer.cs" />
@@ -128,6 +129,7 @@
         <Compile Include="Objects\Generator.cs" />
         <Compile Include="Objects\Levelable.cs" />
         <Compile Include="Objects\Mono\ElectricMono.cs" />
+        <Compile Include="Objects\Mono\Helpers\MonoHoverHelper.cs" />
         <Compile Include="Objects\Mono\MonoFurnace.cs" />
         <Compile Include="Objects\Mono\MonoGenerator.cs" />
         <Compile Include="Objects\Mono\MonoStorage.cs" />

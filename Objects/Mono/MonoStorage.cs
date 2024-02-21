@@ -1,4 +1,5 @@
-﻿using TheElectrician.Objects.Mono.Wire;
+﻿using TheElectrician.Objects.Mono.Helpers;
+using TheElectrician.Objects.Mono.Wire;
 
 namespace TheElectrician.Objects.Mono;
 
@@ -32,53 +33,15 @@ public class MonoStorage : ElectricMono, Interactable
     {
         var sb = new StringBuilder();
         sb.AppendLine(piece.m_name.Localize());
-        if (m_debugMode)
-        {
-            sb.AppendLine($"ID: {storage.GetId()}");
-            var connected = storage.GetConnections().Select(x => x?.GetId().ToString() ?? "null").ToList();
-            sb.AppendLine($"Connected: {(connected.Count > 0 ? connected.GetString() : "none")}");
-        }
+        if (MonoHoverHelper.DebugText(storage, out var debugText)) sb.AppendLine(debugText);
 
-        if (storage.IsFull(false))
-            sb.AppendLine($"<color=#F448B2>${ModName}_storage_is_full </color>".Localize());
+        // if (storage.IsFull(true) || storage.IsEmpty(false))
+        //     sb.AppendLine($"<color=#F448B2>${ModName}_storage_is_full </color>".Localize());
 
         sb.AppendLine();
-        sb.AppendLine(string.Format($"${ModName}_storage_capacity_format".Localize(), storage.GetPowerCapacity(),
-            storage.GetOtherCapacity()));
-        sb.AppendLine(StoredText(storage));
+        sb.AppendLine(MonoHoverHelper.CapacityText(storage));
+        sb.AppendLine(MonoHoverHelper.StoredText(storage));
         return sb.ToString();
-    }
-
-    internal static string StoredText(IStorage storage, bool addEmptyMessage = false)
-    {
-        var sb = new StringBuilder();
-
-        var currentStored = storage.GetStored();
-        if (currentStored.Sum(x => x.Value) > 0) sb.AppendLine($"${ModName}_storage_stored".Localize());
-        else if (addEmptyMessage) return $"${ModName}_storage_empty".Localize();
-        else return string.Empty;
-        foreach (var itemPair in currentStored)
-        {
-            var prefabName = itemPair.Key;
-            var count = Math.Round(itemPair.Value, TheConfig.RoundingPrecision);
-            //Show 0 if less than Consts.minPower
-            if (!prefabName.IsGood()) continue;
-            string itemName;
-            if (prefabName == Consts.storagePowerKey)
-            {
-                itemName = $"${ModName}_power";
-            } else
-            {
-                var sharedData = ZNetScene.instance.GetPrefab(prefabName)
-                    ?.GetComponent<ItemDrop>()?.m_itemData?.m_shared;
-                if (sharedData is null) continue;
-                itemName = sharedData.m_name;
-            }
-
-            sb.AppendLine($" - {itemName}: {count}");
-        }
-
-        return sb.ToString().Localize();
     }
 
     public static bool ConnectDisconnectWire(bool hold, bool alt, IStorage connectingToStorage)

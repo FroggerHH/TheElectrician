@@ -91,7 +91,7 @@ public class Storage : WireConnectable, IStorage
         var list = power
             ? cashedStored.Where(x => x.Key == Consts.storagePowerKey)
             : cashedStored.Where(x => x.Key != Consts.storagePowerKey);
-        return list.Sum(x => x.Value) >= capacity - float.Epsilon;
+        return capacity - list.Sum(x => x.Value) < 0;
     }
 
     public bool IsEmpty(bool power)

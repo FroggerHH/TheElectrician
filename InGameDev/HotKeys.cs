@@ -19,10 +19,11 @@ internal static class HotKeys
     }
 
     [CanBeNull]
-    private static IStorage GetHoveringStorage() => GetHoveringEO() as IStorage;
+    public static IStorage GetHoveringStorage() => GetHoveringEO() as IStorage;
+    public static ILevelable GetHoveringLevelable() => GetHoveringEO() as ILevelable;
 
     [CanBeNull]
-    private static IElectricObject GetHoveringEO()
+    public static IElectricObject GetHoveringEO()
     {
         var hoverObject = m_localPlayer.GetHoverObject()?.GetComponentInParent<ZNetView>()?.gameObject;
         if (!hoverObject) return null;
