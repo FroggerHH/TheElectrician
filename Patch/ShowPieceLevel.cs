@@ -5,14 +5,14 @@ using UnityEngine.SceneManagement;
 namespace TheElectrician.Patch;
 
 [HarmonyPatch(typeof(ZNetScene), nameof(ZNetScene.Awake)), UsedImplicitly, HarmonyWrapSafe]
-file static class ShowPieceLevel
+public static class ShowPieceLevel
 {
-    private static readonly string pattern = " <color=(.*?)>[.*?]</color>";
-    private static readonly string addPattern = $" <color={{0}}>[${ModName}_level ${ModName}_level_{{1}}]</color>";
-    private static readonly string color = "yellow";
+    public static readonly string pattern = " <color=.*>\\[.*\\]<\\/color>";
+    public static readonly string addPattern = $" <color={{0}}>[${ModName}_level ${ModName}_level_{{1}}]</color>";
+    public static readonly string color = "yellow";
 
     [UsedImplicitly, HarmonyPostfix]
-    private static void Postfix()
+    public static void UpdateLevels()
     {
         if (SceneManager.GetActiveScene().name != "main") return;
 
@@ -26,7 +26,6 @@ file static class ShowPieceLevel
             var level = settings.startLevel;
             piece.m_name = Regex.Replace(piece.m_name, pattern, "");
             var format = string.Format(addPattern, color, level);
-            // Debug($"Adding {format} to {piece.m_name}");
             piece.m_name += format;
         }
     }

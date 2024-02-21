@@ -147,7 +147,7 @@ public class MonoWire : ElectricMono, Hoverable, Interactable
 
         if (connectingWire == wire)
         {
-            DebugError("Cannot connect wire to itself");
+            // DebugError("Cannot connect wire to itself");
             m_localPlayer?.Message(MessageHud.MessageType.TopLeft,
                 "<color=#F33F37>Cannot connect wire to itself</color>");
             wire.SetState(WireState.Idle);

@@ -1,4 +1,6 @@
-﻿using TheElectrician.Objects.Consumers.Furnace;
+﻿using TheElectrician.Extensions;
+using TheElectrician.Objects.Consumers.Furnace;
+using TheElectrician.Objects.Mono.Helpers;
 using UnityEngine.UI;
 
 namespace TheElectrician.Objects.Mono;
@@ -73,6 +75,39 @@ public class MonoFurnace : ElectricMono, Hoverable, Interactable
 
         var cameraDirection = _camera.transform.forward;
         canvas.transform.rotation = Quaternion.LookRotation(cameraDirection);
+
+        // if (m_localPlayer)
+        // {
+        //     var allMono = GetAll();
+        //
+        //     foreach (var mono in allMono)
+        //     {
+        //         if (!mono || mono.gameObject == gameObject) continue;
+        //         foreach (var meshRenderer in mono.GetComponentsInChildren<MeshRenderer>())
+        //         {
+        //             if (!meshRenderer) continue;
+        //             meshRenderer.material.color = Color.red; 
+        //         }
+        //     }
+        //
+        //     if (m_localPlayer.m_hovering && m_localPlayer.m_hovering.transform.root?.gameObject == gameObject)
+        //     {
+        //         var f1 = furnace as Furnace;
+        //         if (f1 is null) return;
+        //         foreach (var point in f1.path)
+        //         {
+        //             if (point is null) continue;
+        //             var pointMono = allMono.Find(x => x.GetId() == point.GetId());
+        //             if (pointMono is null) continue;
+        //
+        //             foreach (var meshRenderer in pointMono.GetComponentsInChildren<MeshRenderer>())
+        //             {
+        //                 if (!meshRenderer) continue;
+        //                 meshRenderer.material.color = Color.green;
+        //             }
+        //         }
+        //     }
+        // }
     }
 
     private void UpdateVisual()
@@ -114,7 +149,7 @@ public class MonoFurnace : ElectricMono, Hoverable, Interactable
             return false;
         m_lastUseTime = Time.time;
 
-        if (furnace.IsFull())
+        if (furnace.IsFull(false))
         {
             m_localPlayer.Message(MessageHud.MessageType.Center, "$msg_itsfull");
             return false;
@@ -147,7 +182,7 @@ public class MonoFurnace : ElectricMono, Hoverable, Interactable
 
     public bool UseItem(Humanoid user, ItemData item)
     {
-        if (furnace.IsFull())
+        if (furnace.IsFull(false))
         {
             m_localPlayer.Message(MessageHud.MessageType.Center, "$msg_itsfull");
             return false;
@@ -183,28 +218,25 @@ public class MonoFurnace : ElectricMono, Hoverable, Interactable
         if (furnace == null || !furnace.IsValid()) return string.Empty;
 
         sb.AppendLine(piece.m_name.Localize());
-        var level = furnace.GetLevel();
-        if (m_debugMode)
+        var recipe = furnace.GetCurrentRecipe();
+        if (MonoHoverHelper.DebugText(furnace, out var debugText))
         {
-            sb.AppendLine($"ID: {furnace.GetId()}");
-            sb.AppendLine($"Level: {level} ({$"${ModName}_level_{level}".Localize()})");
-            var currentRecipe = furnace.GetCurrentRecipe();
-            if (currentRecipe is not null)
-                sb.AppendLine($"Current recipe: {currentRecipe}");
-            sb.AppendLine($"Power: {Math.Round(furnace.GetPossiblePower(), TheConfig.RoundingPrecision)}");
+            sb.AppendLine(debugText);
+            if (recipe is not null) sb.AppendLine($"Current recipe: {recipe}");
+            sb.AppendLine($"Power: {Math.Round(furnace.GetPower(), TheConfig.RoundingPrecision)}");
         }
 
         sb.AppendLine();
-        // sb.AppendLine($"${ModName}_level ${ModName}_level_{level}".Localize());
-        sb.AppendLine($"${ModName}_storage_capacity".Localize() + ": " + furnace.GetCapacity());
+        sb.AppendLine(MonoHoverHelper.CapacityText(furnace));
+        if (!furnace.HaveEnoughPower() && !furnace.IsInWorkingState() && recipe is not null)
+            sb.AppendLine($"<color=#F448B2>${ModName}_furnace_low_power </color>".Localize());
         if (furnace.IsInWorkingState())
         {
             sb.Append("<color=#F6E68B>");
-            sb.AppendLine($"${ModName}_furnace_is_working".Localize());
             if (!furnace.HaveEnoughPower())
                 sb.AppendLine($"<color=#F448B2>${ModName}_furnace_low_power </color>".Localize());
+            sb.AppendLine($"${ModName}_furnace_is_working".Localize());
             var progress = furnace.GetProgress();
-            var recipe = furnace.GetCurrentRecipe();
             var inputItem = ObjectDB.instance.GetItem(recipe.input)?.LocalizeName() ?? "???";
             var outputItem = ObjectDB.instance.GetItem(recipe.output)?.LocalizeName() ?? "???";
             var outputCount = recipe.outputCount == 1 ? outputItem : string.Empty;
@@ -220,7 +252,7 @@ public class MonoFurnace : ElectricMono, Hoverable, Interactable
             sb.Append("</color>");
         }
 
-        sb.AppendLine(MonoStorage.StoredText(furnace));
+        sb.AppendLine(MonoHoverHelper.StoredText(furnace));
         return sb.ToString();
     }
 

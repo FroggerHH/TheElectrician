@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using TheElectrician.Extensions;
-using TheElectrician.Objects.Consumers.Furnace;
 
 namespace TheElectrician.Systems.PowerFlow;
 
@@ -31,6 +30,7 @@ public static class PowerFlow
 
     private static void Update()
     {
+        PathFinder.ClearCache();
         FormPowerSystems();
         TransportPowerToStorages();
     }
@@ -42,33 +42,56 @@ public static class PowerFlow
 
         foreach (var powerSys in powerSystems)
         {
-            var storages = powerSys.GetStorages()
-                .Where(x => x is not IGenerator && x is not IConsumer && !x.IsFull())
+            var allStorages = powerSys.GetConnections().OfType<IStorage>()
+                .Where(x => x is not IGenerator && x.AcceptPower())
                 .OrderBy(x => x.GetPower()).ToList();
+            var storages = allStorages.FindAll(x => x is not IConsumer);
+            var consumers = allStorages.OfType<IConsumer>().ToList();
             var generators = powerSys.GetConnections().OfType<IGenerator>()
-                .Where(x => x.GetPower() > 0).OrderByDescending(x => x.GetPower())
+                .Where(x => !x.IsEmpty(true)).OrderByDescending(x => x.GetPower())
                 .ToList();
 
-            if (storages.Count == 0 || generators.Count == 0) continue;
-            HashSet<IWire> usedWires = [];
+            if (storages.Count == 0) continue;
+            foreach (var consumer in consumers)
+            {
+                if (consumer.IsFull(true)) continue;
+
+                foreach (var st in storages)
+                {
+                    var initialPowerToAdd = Min(consumer.FreeSpace(true), st.GetPower());
+                    if (initialPowerToAdd <= float.Epsilon) continue;
+
+                    var path = PathFinder.FindBestPath(consumer, st);
+                    if (path.Count == 0) continue;
+                    var calculatedPower = CalculatePower(initialPowerToAdd, path);
+                    if (calculatedPower <= float.Epsilon) continue;
+                    st.TransferTo(consumer, Consts.storagePowerKey, calculatedPower);
+                    PathFinder.ApplyPath(path, initialPowerToAdd);
+                }
+            }
+
+            if (generators.Count == 0) continue;
             foreach (var storage in storages)
             {
-                // Debug($"storage {storage.GetObjectString()}");
-                if (storage.IsFull()) continue;
+                if (storage.IsFull(true))
+                {
+                    continue;
+                }
+
                 foreach (var gen in generators)
                 {
-                    var toAdd = Min(storage.FreeSpace(), gen.GetPower());
-                    if (toAdd == 0) continue;
+                    var initialPowerToAdd = Min(storage.FreeSpace(true), gen.GetPower());
+                    if (initialPowerToAdd <= float.Epsilon) continue;
 
-                    var path = PathFinder.FindBestPath(storage, gen, usedWires);
-                    var wires = path.OfType<IWire>();
-                    foreach (var wire in wires) usedWires.Add(wire);
-
+                    var path = PathFinder.FindBestPath(storage, gen);
                     if (path.Count == 0) continue;
-                    toAdd = CalculatePower(toAdd, path);
 
-                    gen.TransferTo(storage, Consts.storagePowerKey, toAdd);
-                    return;
+                    var calculatedPower = CalculatePower(initialPowerToAdd, path);
+                    Debug($"PowerFlow 14");
+                    if (calculatedPower <= float.Epsilon) continue;
+
+                    gen.TransferTo(storage, Consts.storagePowerKey, calculatedPower);
+                    PathFinder.ApplyPath(path, initialPowerToAdd);
                 }
             }
         }
@@ -77,15 +100,18 @@ public static class PowerFlow
     public static float CalculatePower(float initialPower, HashSet<IWireConnectable> path)
     {
         var resultPower = initialPower;
+
         foreach (var point in path)
         {
-            resultPower = Clamp(initialPower, 0, point.GetConductivity());
-            resultPower *= 1 - (point.GetPowerLoss() / 100);
-            if (resultPower == 0) break;
+            resultPower = Clamp(resultPower, 0, point.GetConductivity());
+            if (point is IWire wire && PathFinder.wiresConductivityCache.TryGetValue(wire, out var powerUsed))
+                resultPower = Clamp(resultPower, 0, wire.GetConductivity() - powerUsed);
+
+            resultPower *= 1 - point.GetPowerLoss() / 100;
+            if (resultPower <= float.Epsilon) return 0;
         }
 
-        // Debug($"Calculated {initialPower}->{resultPower} power. "
-        //       + $"PathConductivity: {path.Select(x => x.GetConductivity()).GetString()}");
+        // Debug($"Calculated {initialPower}->{resultPower} power");
         return resultPower;
     }
 
@@ -102,19 +128,19 @@ public static class PowerFlow
             GoThroughConnections([storage]);
         }
 
-        var connectedPowerSystems = new HashSet<PowerSystem>(powerSystems);
+        var connectedPowerSystems = new List<PowerSystem>();
         foreach (var powerSys in powerSystems)
         {
-            var connected = powerSystems.FirstOrDefault(x =>
-                x.GetConnections().Any(x1 => powerSys.GetConnections().Contains(x1)));
-            if (connected != null && powerSys != connected)
+            var connected =
+                powerSystems.FirstOrDefault(x => x.GetConnections().Any(x1 => powerSys.GetConnections().Contains(x1)));
+            if (connected != null && !connectedPowerSystems.Exists(x => x.Equals(connected)))
             {
                 powerSys.SetConnections(powerSys.GetConnections().Union(connected.GetConnections()).ToHashSet());
-                connectedPowerSystems.RemoveWhere(x => x.Equals(connected));
+                connectedPowerSystems.Add(powerSys);
             }
         }
 
-        powerSystems = connectedPowerSystems;
+        powerSystems = connectedPowerSystems.ToHashSet();
 
         void GoThroughConnections(HashSet<IPipeableConnectable> connections)
         {
@@ -131,13 +157,5 @@ public static class PowerFlow
     public static PowerSystem GetPowerSystem(IWireConnectable element)
     {
         return powerSystems.FirstOrDefault(x => x.ContainsConnection(element));
-    }
-
-    public static bool ConsumePower(IConsumer consumer, float amount)
-    {
-        var powerSys = GetPowerSystem(consumer as IWireConnectable);
-        if (powerSys == null) return false;
-
-        return powerSys.ConsumePower(consumer, amount);
     }
 }

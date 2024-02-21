@@ -39,9 +39,12 @@ public class Levelable : ElectricObject, ILevelable
         return level;
     }
 
-    public bool SetLevel(int level)
+    public bool SetLevel(int level, bool ignoreMaxLevel = false)
     {
+        if (level < 0) return false;
         if (!IsValid()) return false;
+        if (!ignoreMaxLevel && level > GetMaxLevel()) return false;
+        if (level < GetStartLevel()) return false;
 
         GetZDO().Set(Consts.levelKey, level);
         onLevelChanged?.Invoke();

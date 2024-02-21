@@ -1,6 +1,5 @@
 ﻿namespace TheElectrician.Models;
 
-public interface IConsumer : IElectricObject
+public interface IConsumer : IStorage
 {
-    float GetPossiblePower();
 }

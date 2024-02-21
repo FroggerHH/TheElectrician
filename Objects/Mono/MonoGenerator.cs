@@ -1,4 +1,6 @@
-﻿namespace TheElectrician.Objects.Mono;
+﻿using TheElectrician.Objects.Mono.Helpers;
+
+namespace TheElectrician.Objects.Mono;
 
 public class MonoGenerator : ElectricMono, Hoverable, Interactable
 {
@@ -20,16 +22,12 @@ public class MonoGenerator : ElectricMono, Hoverable, Interactable
         if (fuelItemPrefab != null) fuelItemName = fuelItemPrefab.m_itemData.m_shared.m_name;
 
         sb.AppendLine(piece.m_name.Localize());
-        if (m_debugMode)
-        {
-            sb.AppendLine($"ID: {generator.GetId()}");
-            var connected = generator.GetConnections().Select(x => x?.GetId().ToString() ?? "null").ToList();
-            sb.AppendLine($"Connected: {(connected.Count > 0 ? connected.GetString() : "no one")}");
-        }
+        if (MonoHoverHelper.DebugText(generator, out var debugText)) sb.AppendLine(debugText);
 
         sb.AppendLine();
         sb.AppendLine($"[<color=yellow><b>$KEY_Use</b></color>] $piece_smelter_add {fuelItemName}".Localize());
-        sb.AppendLine($"${ModName}_storage_capacity".Localize() + ": " + generator.GetCapacity());
+
+        sb.AppendLine(MonoHoverHelper.CapacityText(generator));
 
         if (!generator.CanAdd(Consts.storagePowerKey, generator.GetPowerPerTick()))
             sb.AppendLine($"<color=#F448B2>${ModName}_generator_is_full  </color>".Localize());
@@ -40,8 +38,7 @@ public class MonoGenerator : ElectricMono, Hoverable, Interactable
         sb.AppendLine(string.Format($"${ModName}_generator_power_per_tick".Localize(), generator.GetPowerPerTick()));
         sb.AppendLine(string.Format($"${ModName}_generator_fuel_per_tick".Localize(), generator.GetFuelPerTick()));
 
-        //Stored items
-        sb.AppendLine(MonoStorage.StoredText(generator));
+        sb.AppendLine(MonoHoverHelper.StoredText(generator));
 
         return sb.ToString();
     }
@@ -144,8 +141,8 @@ public class MonoGenerator : ElectricMono, Hoverable, Interactable
 
     private void UpdateVisual()
     {
-        enabledVisual.SetActive(generator.HasFuel());
-        itemPreview.SetActive(generator.Count(generator.GetFuelItem()) > 0);
+        enabledVisual.SetActive(generator.HasFuel() && !generator.IsFull(false) && !generator.IsEmpty(false));
+        itemPreview.SetActive(generator.Count(generator.GetFuelItem()) > float.Epsilon);
     }
 
     public void OnDestroyed()

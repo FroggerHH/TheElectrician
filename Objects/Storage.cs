@@ -37,6 +37,8 @@ public class Storage : WireConnectable, IStorage
             return cashedStored;
         }
 
+        if (!savedString.IsGood()) return [];
+
         cashedStored = savedString
             .Split(';')
             .Select(x => x.Split(':'))
@@ -46,7 +48,7 @@ public class Storage : WireConnectable, IStorage
 
     public void SetStored(string key, float stored)
     {
-        var clamp = Clamp(stored, 0, GetCapacity());
+        var clamp = Clamp(stored, 0, key == Consts.storagePowerKey ? GetPowerCapacity() : GetOtherCapacity());
         cashedStored[key] = clamp;
         UpdateCurrentStored();
     }
@@ -80,15 +82,26 @@ public class Storage : WireConnectable, IStorage
         return true;
     }
 
-    public int GetCapacity() => storageSettings.capacity;
+    public int GetPowerCapacity() => storageSettings.powerCapacity;
+    public int GetOtherCapacity() => storageSettings.otherCapacity;
 
-    public bool IsFull()
+    public bool IsFull(bool power)
     {
-        var capacity = GetCapacity();
-        return cashedStored.Sum(x => x.Value) >= capacity - Consts.minPower;
+        var capacity = power ? GetPowerCapacity() : GetOtherCapacity();
+        var list = power
+            ? cashedStored.Where(x => x.Key == Consts.storagePowerKey)
+            : cashedStored.Where(x => x.Key != Consts.storagePowerKey);
+        return capacity - list.Sum(x => x.Value) < 0;
     }
 
-    public bool IsEmpty() { return cashedStored.Sum(x => x.Value) <= Consts.minPower; }
+    public bool IsEmpty(bool power)
+    {
+        var list = power
+            ? cashedStored.Where(x => x.Key == Consts.storagePowerKey)
+            : cashedStored.Where(x => x.Key != Consts.storagePowerKey);
+
+        return list.Sum(x => x.Value) <= float.Epsilon;
+    }
 
     public void Clear()
     {
@@ -112,7 +125,11 @@ public class Storage : WireConnectable, IStorage
 
         if (!CanAccept(key)) return false;
 
-        return cashedStored.Sum(x => x.Value) + amount <= GetCapacity();
+        var list = key == Consts.storagePowerKey
+            ? cashedStored.Where(x => x.Key == Consts.storagePowerKey)
+            : cashedStored.Where(x => x.Key != Consts.storagePowerKey);
+
+        return list.Sum(x => x.Value) + amount <= GetPowerCapacity();
     }
 
     public virtual bool CanRemove(string key, float amount)
@@ -135,7 +152,15 @@ public class Storage : WireConnectable, IStorage
         return false;
     }
 
-    public float FreeSpace() { return GetCapacity() - cashedStored.Sum(x => x.Value); }
+    public float FreeSpace(bool power)
+    {
+        var capacity = power ? GetPowerCapacity() : GetOtherCapacity();
+        var list = power
+            ? cashedStored.Where(x => x.Key == Consts.storagePowerKey)
+            : cashedStored.Where(x => x.Key != Consts.storagePowerKey);
+
+        return capacity - list.Sum(x => x.Value);
+    }
 
     public virtual string[] GetAllowedKeys() => storageSettings.allowedKeys;
 
@@ -169,17 +194,11 @@ public class Storage : WireConnectable, IStorage
 
     public override bool CanConnectOnlyToWires() => true;
 
-    public override string ToString()
-    {
-        if (!IsValid()) return "Uninitialized Storage";
-        return $"Storage {GetId()} stored: {cashedStored.GetString()}";
-    }
-
     private void UpdateCurrentStored()
     {
         cashedStored = cashedStored.Where(x => x.Value > 0).ToDictionary(x => x.Key, x => x.Value);
-        var join = string.Join(";", cashedStored.Select(x => $"{x.Key}:{x.Value}"));
         if (!IsValid()) return;
+        var join = string.Join(";", cashedStored.Select(x => $"{x.Key}:{x.Value}"));
         onStorageChanged?.Invoke();
         GetZDO().Set(Consts.storageKey, join);
     }

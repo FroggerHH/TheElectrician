@@ -26,8 +26,8 @@ public class ElectricObject : IElectricObject
 
     public override string ToString()
     {
-        return $"EO, Type: {GetType()}, IsValid: {isValid}, zdo: {m_zdo}, "
-               + $"settings: {settings?.ToString() ?? "null"}";
+        if (!IsValid()) return $"Uninitialized {settings?.type.Name ?? $"{nameof(ElectricObject)}"}";
+        return $"{settings?.type.Name} {GetId()}";
     }
 
     public T GetSettings<T>() where T : ElectricObjectSettings { return settings as T; }

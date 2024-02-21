@@ -33,17 +33,4 @@ public class Wire : WireConnectable, IWire
     }
 
     public override bool CanConnectOnlyToWires() { return false; }
-
-    public override string ToString()
-    {
-        if (!IsValid()) return "Uninitialized Wire";
-        string connectedListStr;
-        if (cashedConnections is null) connectedListStr = "none";
-        else
-            connectedListStr = cashedConnections.Count > 0
-                ? string.Join(", ", cashedConnections.Select(x => x?.GetId().ToString() ?? "none"))
-                : "no one";
-
-        return $"Wire {GetId()} connected to: '{connectedListStr}'";
-    }
 }
