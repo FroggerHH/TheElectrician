@@ -1,13 +1,14 @@
-﻿using TheElectrician.Models.Settings;
+﻿using TheElectrician.Settings;
 
 namespace TheElectrician.Objects;
 
 public class ElectricObject : IElectricObject
 {
+    internal ElectricObject() { }
+
     private bool isValid;
     private ZDO m_zdo;
     private ElectricObjectSettings settings;
-    internal ElectricObject() { }
     public virtual ZDO GetZDO() { return m_zdo; }
 
     public virtual void Update() { }
@@ -39,7 +40,7 @@ public class ElectricObject : IElectricObject
         m_zdo = null;
 
         if (this is not IWireConnectable wireConnectable) return;
-        List<IPipeableConnectable> connections = [];
+        List<IPipeConnectable> connections = [];
         foreach (var connection in wireConnectable.GetConnections()) connections.Add(connection);
         //Debug($"Reset {wireConnectable.ToString() ?? "null"}, connections: {wireConnectable.GetConnections().GetString()}");
         foreach (var con in connections) con.RemoveConnection(wireConnectable);

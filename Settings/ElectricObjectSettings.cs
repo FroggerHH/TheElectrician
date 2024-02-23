@@ -1,4 +1,4 @@
-﻿namespace TheElectrician.Models.Settings;
+﻿namespace TheElectrician.Settings;
 
 [Serializable]
 public class ElectricObjectSettings(Type type)

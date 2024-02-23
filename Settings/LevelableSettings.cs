@@ -1,4 +1,4 @@
-﻿namespace TheElectrician.Models.Settings;
+﻿namespace TheElectrician.Settings;
 
 public class LevelableSettings(Type type, int startLevel, int maxLevel) : ElectricObjectSettings(type)
 {

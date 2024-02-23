@@ -1,4 +1,4 @@
-﻿using TheElectrician.Models.Settings;
+﻿using TheElectrician.Settings;
 
 namespace TheElectrician.Objects;
 
@@ -129,7 +129,9 @@ public class Storage : WireConnectable, IStorage
             ? cashedStored.Where(x => x.Key == Consts.storagePowerKey)
             : cashedStored.Where(x => x.Key != Consts.storagePowerKey);
 
-        return list.Sum(x => x.Value) + amount <= GetPowerCapacity();
+        var capacity = key == Consts.storagePowerKey ? GetPowerCapacity() : GetOtherCapacity();
+
+        return list.Sum(x => x.Value) + amount <= capacity;
     }
 
     public virtual bool CanRemove(string key, float amount)

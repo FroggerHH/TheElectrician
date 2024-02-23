@@ -1,8 +1,7 @@
 ﻿namespace TheElectrician.Models;
 
-public interface IWireConnectable : IPipeableConnectable
+public interface IWireConnectable : IPipeConnectable
 {
-    float GetConductivity();
     float GetPowerLoss();
     bool CanConnectOnlyToWires();
 }

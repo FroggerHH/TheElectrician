@@ -1,4 +1,4 @@
-﻿using TheElectrician.Models.Settings;
+﻿using TheElectrician.Settings;
 
 namespace TheElectrician.Objects;
 

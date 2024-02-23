@@ -25,6 +25,17 @@ file static class FinishPieces
         TE_woodStorage();
         TE_woodWire();
         TE_stoneFurnace();
+        TE_tinPipe();
+    }
+
+    private static void TE_tinPipe()
+    {
+        var _piece = piece("TE_tinPipe");
+        var _wearNTear = wearNTear("TE_tinPipe");
+        _piece.m_placeEffect = woodPlaceEffect;
+        _wearNTear.m_hitEffect = woodwallWN.m_hitEffect;
+        FixShaders(_piece.gameObject);
+        _piece.gameObject.GetOrAddComponent<MonoItemPipe>();
     }
 
     private static void TE_woodWire()

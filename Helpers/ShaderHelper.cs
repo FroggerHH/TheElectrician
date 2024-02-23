@@ -27,7 +27,8 @@ public static class ShaderHelper
     public static void FixShaders(GameObject obj)
     {
         var renderers = obj.GetComponentsInChildren<Renderer>(true);
-        foreach (var ren in renderers) ren.material.shader = Shader.Find(ren.material.shader.name);
+        foreach (var ren in renderers)
+            ren.sharedMaterial.shader = Shader.Find(ren.material.shader.name) ?? ren.sharedMaterial.shader;
     }
 
     public static void FixShaders(Component obj) => FixShaders(obj.gameObject);

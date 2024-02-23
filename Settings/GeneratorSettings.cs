@@ -1,4 +1,4 @@
-﻿namespace TheElectrician.Models.Settings;
+﻿namespace TheElectrician.Settings;
 
 public class GeneratorSettings(
     Type type,
@@ -6,13 +6,14 @@ public class GeneratorSettings(
     int maxLevel,
     int powerLoss,
     int maxConnections,
+    float maxDistance,
     int powerCapacity,
     int otherCapacity,
     float powerPerTick,
     string fuelItem,
     float fuelPerTick,
     int maxFuel)
-    : StorageSettings(type, startLevel, maxLevel, int.MaxValue, powerLoss, maxConnections, powerCapacity, otherCapacity,
+    : StorageSettings(type, startLevel, maxLevel, int.MaxValue, powerLoss, maxConnections, maxDistance, powerCapacity, otherCapacity,
         [fuelItem, Consts.storagePowerKey])
 {
     public readonly string fuelItem = fuelItem;

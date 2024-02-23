@@ -1,4 +1,4 @@
-﻿namespace TheElectrician.Models.Settings;
+﻿namespace TheElectrician.Settings;
 
 public class ConsumerSettings(
     Type type,
@@ -7,7 +7,8 @@ public class ConsumerSettings(
     float conductivity,
     float powerLoss,
     int maxConnections,
+    float maxDistance,
     int powerCapacity,
     int otherCapacity)
-    : StorageSettings(type, startLevel, maxLevel, conductivity, powerLoss, maxConnections, powerCapacity, otherCapacity,
+    : StorageSettings(type, startLevel, maxLevel, conductivity, powerLoss, maxConnections, maxDistance, powerCapacity, otherCapacity,
         [Consts.storagePowerKey]);

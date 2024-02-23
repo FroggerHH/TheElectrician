@@ -1,5 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using TheElectrician.Models.Settings;
+using TheElectrician.Settings;
 using UnityEngine.SceneManagement;
 
 namespace TheElectrician.Patch;

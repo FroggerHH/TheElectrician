@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using TheElectrician.Extensions;
-using TheElectrician.Models.Settings;
+using TheElectrician.Settings;
 using TheElectrician.Systems.PowerFlow;
 
 namespace TheElectrician.Objects.Consumers.Furnace;
@@ -102,8 +102,6 @@ public class Furnace : Storage, IFurnace
         }
 
         ticksElapsed = 0;
-
-        Debug($"Furnace ConsumePower: {consumePowerResult}, {powerNeeded}/{currentPower}");
     }
 
     private bool CanProduceRecipe(FurnaceRecipe recipe, bool checkPower = true)

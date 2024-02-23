@@ -37,7 +37,6 @@ public static class PowerFlow
 
     private static void TransportPowerToStorages()
     {
-        //TODO: The maximum distance between the wires (you cannot connect two wires from different sides of the world)
         //TODO: Checking the wire block (the cable cannot pass through obstacles)
 
         foreach (var powerSys in powerSystems)
@@ -87,7 +86,6 @@ public static class PowerFlow
                     if (path.Count == 0) continue;
 
                     var calculatedPower = CalculatePower(initialPowerToAdd, path);
-                    Debug($"PowerFlow 14");
                     if (calculatedPower <= float.Epsilon) continue;
 
                     gen.TransferTo(storage, Consts.storagePowerKey, calculatedPower);
@@ -142,7 +140,7 @@ public static class PowerFlow
 
         powerSystems = connectedPowerSystems.ToHashSet();
 
-        void GoThroughConnections(HashSet<IPipeableConnectable> connections)
+        void GoThroughConnections(HashSet<IPipeConnectable> connections)
         {
             foreach (var electricObject in connections)
             {

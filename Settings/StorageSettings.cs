@@ -1,4 +1,4 @@
-﻿namespace TheElectrician.Models.Settings;
+﻿namespace TheElectrician.Settings;
 
 public class StorageSettings(
     Type type,
@@ -7,10 +7,11 @@ public class StorageSettings(
     float conductivity,
     float powerLoss,
     int maxConnections,
+    float maxDistance,
     int powerCapacity,
     int otherCapacity,
     string[] allowedKeys = null)
-    : WireConnectableSettings(type, startLevel, maxLevel, conductivity, powerLoss, maxConnections)
+    : WireConnectableSettings(type, startLevel, maxLevel, conductivity, powerLoss, maxConnections, maxDistance)
 {
     public int otherCapacity = otherCapacity;
     public readonly int powerCapacity = powerCapacity;

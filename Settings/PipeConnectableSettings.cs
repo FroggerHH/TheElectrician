@@ -1,17 +1,17 @@
-﻿namespace TheElectrician.Models.Settings;
+﻿namespace TheElectrician.Settings;
 
-public class WireConnectableSettings(
+public class PipeConnectableSettings(
     Type type,
     int startLevel,
     int maxLevel,
     float conductivity,
-    float powerLoss,
-    int maxConnections)
+    int maxConnections,
+    float maxDistance)
     : LevelableSettings(type, startLevel, maxLevel)
 {
     public readonly float conductivity = conductivity;
-    public readonly float powerLoss = powerLoss;
-    public int maxConnections = maxConnections;
+    public readonly int maxConnections = maxConnections;
+    public readonly float maxDistance = maxDistance;
 
     public override string ToString()
     {
@@ -19,7 +19,7 @@ public class WireConnectableSettings(
                + $"maxLevel={maxLevel} "
                + $"startLevel={startLevel} "
                + $"conductivity={conductivity} "
-               + $"powerLoss={powerLoss} "
-               + $"maxConnections={maxConnections}";
+               + $"maxConnections={maxConnections} "
+               + $"maxDistance={maxDistance}";
     }
 }
