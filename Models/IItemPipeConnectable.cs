@@ -2,6 +2,4 @@
 
 public interface IItemPipeConnectable : IPipeConnectable
 {
-    int GetMaxWeight();
-    int GetMaxItemsCount();
 }

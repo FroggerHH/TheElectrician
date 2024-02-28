@@ -1,6 +1,4 @@
-﻿using TheElectrician.Objects.Mono;
-
-namespace TheElectrician.InGameDev;
+﻿namespace TheElectrician.InGameDev;
 
 internal static class HotKeys
 {
@@ -19,19 +17,9 @@ internal static class HotKeys
     }
 
     [CanBeNull]
-    public static IStorage GetHoveringStorage() => GetHoveringEO() as IStorage;
-    public static ILevelable GetHoveringLevelable() => GetHoveringEO() as ILevelable;
+    public static IStorage GetHoveringStorage() => m_localPlayer.GetHoveringEO() as IStorage;
 
-    [CanBeNull]
-    public static IElectricObject GetHoveringEO()
-    {
-        var hoverObject = m_localPlayer.GetHoverObject()?.GetComponentInParent<ZNetView>()?.gameObject;
-        if (!hoverObject) return null;
-
-        var mono = ElectricMono.GetAll().Find(x => x.gameObject == hoverObject);
-        if (mono is null) return null;
-        return Library.GetObject(mono.GetId());
-    }
+    public static ILevelable GetHoveringLevelable() => m_localPlayer.GetHoveringEO() as ILevelable;
 
     private static void ClearStorage()
     {

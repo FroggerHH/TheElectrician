@@ -1,23 +1,20 @@
 ﻿using TheElectrician.Settings;
+using TheElectrician.Settings.Interfaces;
 
 namespace TheElectrician.Objects;
 
 public abstract class ItemPipeConnectable : PipeConnectable, IItemPipeConnectable
 {
-    private ItemPipeConnectableSettings itemPipeConnectableSettings;
+    private IItemPipeConnectableSettings itemPipeConnectableSettings;
 
-    public override void InitSettings(ElectricObjectSettings sett)
+    public override void InitSettings(IElectricObjectSettings sett)
     {
         base.InitSettings(sett);
-        itemPipeConnectableSettings = GetSettings<ItemPipeConnectableSettings>();
+        itemPipeConnectableSettings = GetSettings<IItemPipeConnectableSettings>();
         if (itemPipeConnectableSettings is null)
             DebugError(
-                $"ItemPipeConnectable.InitSettings: Settings '{GetSettings()?.GetType().Name}' is not ItemPipeConnectableSettings");
+                $"{GetType().Name}.InitSettings: Settings '{GetSettings()?.GetType().Name}' is not IItemPipeConnectableSettings");
     }
 
     public override PipeTransferMode GetTransferMode() => PipeTransferMode.Items;
-
-    public int GetMaxWeight() => itemPipeConnectableSettings.maxWeight;
-
-    public int GetMaxItemsCount() => itemPipeConnectableSettings.maxDifferentItemsCount;
 }

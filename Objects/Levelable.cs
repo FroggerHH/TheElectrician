@@ -1,18 +1,19 @@
 ﻿using TheElectrician.Settings;
+using TheElectrician.Settings.Interfaces;
 
 namespace TheElectrician.Objects;
 
 public class Levelable : ElectricObject, ILevelable
 {
     public UnityEvent onLevelChanged { get; private set; }
-    private LevelableSettings levelableSettings;
+    private ILevelableSettings levelableSettings;
 
-    public override void InitSettings(ElectricObjectSettings sett)
+    public override void InitSettings(IElectricObjectSettings sett)
     {
         base.InitSettings(sett);
-        levelableSettings = GetSettings<LevelableSettings>();
+        levelableSettings = GetSettings<ILevelableSettings>();
         if (levelableSettings is null)
-            DebugError($"Levelable.InitSettings: Settings '{GetSettings()?.GetType().Name}' is not LevelableSettings");
+            DebugError($"{GetType().Name}.InitSettings: Settings '{GetSettings()?.GetType().Name}' is not ILevelableSettings");
     }
 
     public override void InitData()

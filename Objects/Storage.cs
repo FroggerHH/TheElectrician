@@ -1,4 +1,5 @@
 ﻿using TheElectrician.Settings;
+using TheElectrician.Settings.Interfaces;
 
 namespace TheElectrician.Objects;
 
@@ -8,14 +9,14 @@ public class Storage : WireConnectable, IStorage
     public UnityEvent<string, float> onItemAdded { get; private set; }
     public UnityEvent<string, float> onItemRemoved { get; private set; }
     private Dictionary<string, float> cashedStored = new();
-    private StorageSettings storageSettings;
+    private IStorageSettings storageSettings;
 
-    public override void InitSettings(ElectricObjectSettings sett)
+    public override void InitSettings(IElectricObjectSettings sett)
     {
         base.InitSettings(sett);
-        storageSettings = GetSettings<StorageSettings>();
+        storageSettings = GetSettings<IStorageSettings>();
         if (storageSettings is null)
-            DebugError($"Storage.InitSettings: Settings '{GetSettings()?.GetType().Name}' is not StorageSettings");
+            DebugError($"{GetType().Name}.InitSettings: Settings '{GetSettings()?.GetType().Name}' is not IStorageSettings");
     }
 
     public override void InitData()

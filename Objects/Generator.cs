@@ -1,17 +1,18 @@
 ﻿using TheElectrician.Settings;
+using TheElectrician.Settings.Interfaces;
 
 namespace TheElectrician.Objects;
 
 public class Generator : Storage, IGenerator
 {
-    private GeneratorSettings generatorSettings;
+    private IGeneratorSettings generatorSettings;
 
-    public override void InitSettings(ElectricObjectSettings settings)
+    public override void InitSettings(IElectricObjectSettings settings)
     {
         base.InitSettings(settings);
-        generatorSettings = GetSettings<GeneratorSettings>();
+        generatorSettings = GetSettings<IGeneratorSettings>();
         if (generatorSettings is null)
-            DebugError($"Generator.InitSettings: Settings '{GetSettings()?.GetType().Name}' is not GeneratorSettings");
+            DebugError($"{GetType().Name}.InitSettings: Settings '{GetSettings()?.GetType().Name}' is not IGeneratorSettings");
     }
 
     public float GetPowerPerTick() => generatorSettings.powerPerTick;

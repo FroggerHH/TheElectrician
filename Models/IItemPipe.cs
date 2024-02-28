@@ -1,5 +1,7 @@
 ﻿namespace TheElectrician.Models;
 
-public interface IItemPipe : IPipeConnectable
+public interface IItemPipe : IItemPipeConnectable
 {
+    int GetMaxWeight();
+    int GetMaxItemsCount();
 }

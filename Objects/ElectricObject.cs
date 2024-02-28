@@ -1,4 +1,5 @@
 ﻿using TheElectrician.Settings;
+using TheElectrician.Settings.Interfaces;
 
 namespace TheElectrician.Objects;
 
@@ -8,12 +9,12 @@ public class ElectricObject : IElectricObject
 
     private bool isValid;
     private ZDO m_zdo;
-    private ElectricObjectSettings settings;
+    private IElectricObjectSettings settings;
     public virtual ZDO GetZDO() { return m_zdo; }
 
     public virtual void Update() { }
 
-    public virtual void InitSettings(ElectricObjectSettings settings) { this.settings = settings; }
+    public virtual void InitSettings(IElectricObjectSettings settings) { this.settings = settings; }
 
     public Guid GetId()
     {
@@ -31,8 +32,13 @@ public class ElectricObject : IElectricObject
         return $"{settings?.type.Name} {GetId()}";
     }
 
-    public T GetSettings<T>() where T : ElectricObjectSettings { return settings as T; }
-    public ElectricObjectSettings GetSettings() { return settings; }
+    public T GetSettings<T>() where T : IElectricObjectSettings
+    {
+        if (settings is T result) return result;
+        return default;
+    }
+
+    public IElectricObjectSettings GetSettings() { return settings; }
 
     internal void Reset()
     {

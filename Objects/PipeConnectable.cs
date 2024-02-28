@@ -1,4 +1,5 @@
 ﻿using TheElectrician.Settings;
+using TheElectrician.Settings.Interfaces;
 
 namespace TheElectrician.Objects;
 
@@ -6,16 +7,16 @@ public abstract class PipeConnectable : Levelable, IPipeConnectable
 {
     public UnityEvent onConnectionsChanged { get; private set; }
 
-    private PipeConnectableSettings pipeConnectableSettings;
+    private IPipeConnectableSettings pipeConnectableSettings;
     private HashSet<IPipeConnectable> cashedConnections;
 
-    public override void InitSettings(ElectricObjectSettings sett)
+    public override void InitSettings(IElectricObjectSettings sett)
     {
         base.InitSettings(sett);
-        pipeConnectableSettings = GetSettings<PipeConnectableSettings>();
+        pipeConnectableSettings = GetSettings<IPipeConnectableSettings>();
         if (pipeConnectableSettings is null)
             DebugError(
-                $"PipeConnectable.InitSettings: Settings '{GetSettings()?.GetType().Name}' is not PipeConnectableSettings");
+                $"{GetType().Name}.InitSettings: Settings '{GetSettings()?.GetType().Name}' is not IPipeConnectableSettings");
     }
 
     public override void InitData()
@@ -26,7 +27,6 @@ public abstract class PipeConnectable : Levelable, IPipeConnectable
     }
 
     public int GetMaxConnections() => pipeConnectableSettings.maxConnections;
-    public float GetConductivity() => pipeConnectableSettings.conductivity;
 
     public abstract PipeTransferMode GetTransferMode();
 
@@ -79,9 +79,6 @@ public abstract class PipeConnectable : Levelable, IPipeConnectable
 
         if (Max(cashedConnections.Count, connectable.GetConnections().Count)
             >= Max(GetMaxConnections(), connectable.GetMaxConnections())) return false;
-        if (GetZDO().GetPosition().DistanceXZ(connectable.GetZDO().GetPosition()) >=
-            Max(GetSettings<PipeConnectableSettings>().maxDistance,
-                connectable.GetSettings<PipeConnectableSettings>().maxDistance)) return false;
 
         return true;
     }

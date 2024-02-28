@@ -4,7 +4,6 @@ using TheElectrician.InGameDev;
 using TheElectrician.Libs.LocalizationManager;
 using TheElectrician.Libs.PieceManager;
 using TheElectrician.Objects.Consumers.Furnace;
-using TheElectrician.Settings;
 
 namespace TheElectrician;
 
@@ -27,7 +26,7 @@ public class Plugin : BaseUnityPlugin
         AddBuildPieces();
     }
 
-    private void Update() { HotKeys.Update(); }
+    private void Update() => HotKeys.Update();
 
     [SuppressMessage("ReSharper", "ObjectCreationAsStatement")]
     private void AddFurnaceRecipes()
@@ -66,8 +65,8 @@ public class Plugin : BaseUnityPlugin
         coalGenerator.RequiredItems.Add("SurtlingCore", 4, true);
         coalGenerator.Category.Set("TheElectrician");
         Library.Register("TE_coalGenerator", new GeneratorSettings(
-            typeof(Generator), 1, 1, 15, 2, 1.5f, 60, 150,
-            6f, "Coal", 0.4f, 100));
+            typeof(Generator), 1, 1, 2, 15, 32, 2, 60, 150,
+            "Coal", 0.4f, 100, 1.5f));
 
         BuildPiece stoneFurnace = new(bundle, "TE_stoneFurnace");
         stoneFurnace.Name.English("Electric Furnace");
@@ -80,7 +79,7 @@ public class Plugin : BaseUnityPlugin
         stoneFurnace.RequiredItems.Add("SurtlingCore", 20, true);
         stoneFurnace.Category.Set("TheElectrician");
         Library.Register("TE_stoneFurnace", new FurnaceSettings(
-            typeof(Furnace), 1, 1, 15, 1, 1.5f, 50, 150));
+            typeof(Furnace), 1, 1, 50, 150, 2, 15, 32, 1.5f));
 
         BuildPiece woodWire = new(bundle, "TE_woodWire");
         woodWire.Name.English("Wire fastening");
@@ -90,7 +89,7 @@ public class Plugin : BaseUnityPlugin
         woodWire.RequiredItems.Add("Wood", 1, true);
         woodWire.Category.Set("TheElectrician");
         Library.Register("TE_woodWire",
-            new WireSettings(typeof(Wire), 0, 0, 32f, 5f, 3, 3));
+            new WireSettings(typeof(Wire), 0, 0, 3, 5, 16, 6));
 
         BuildPiece woodStorage = new(bundle, "TE_woodenStorage");
         woodStorage.Name.English("Wooden power storage");
@@ -101,16 +100,17 @@ public class Plugin : BaseUnityPlugin
         woodStorage.RequiredItems.Add("Resin", 35, true);
         woodStorage.Category.Set("TheElectrician");
         Library.Register("TE_woodenStorage",
-            new StorageSettings(typeof(Storage), 0, 0, 32f, 10f, 3, 1.8f, 120, 0, [Consts.storagePowerKey]));
+            new StorageSettings(typeof(Storage), 0, 0, 3, 10, 16,
+                1.8f, 0, 120, 1, 1));
 
         BuildPiece tinPipe = new(bundle, "TE_tinPipe");
-        tinPipe.Name.English("");
-        tinPipe.Name.Russian("");
+        tinPipe.Name.English("Предметная труба");
+        tinPipe.Name.Russian("Item pipe");
         tinPipe.Description.English("Allows connecting objects with wires. Conducts 32 EU per tick.");
         tinPipe.Description.Russian("Позволяет соединять объекты проводами. Передаёт 32 EU в тик.");
         tinPipe.RequiredItems.Add("Wood", 1, true);
         tinPipe.Category.Set("TheElectrician");
         Library.Register("TE_tinPipe",
-            new ItemPipeSettings(typeof(ItemPipe), 2, 2, 32f, 2, 120, 1));
+            new ItemPipeSettings(typeof(ItemPipe), 2, 2, 2, 120, 1));
     }
 }

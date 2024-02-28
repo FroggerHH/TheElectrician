@@ -1,19 +1,20 @@
 ﻿using TheElectrician.Objects.Mono.Wire;
 using TheElectrician.Settings;
+using TheElectrician.Settings.Interfaces;
 
 namespace TheElectrician.Objects;
 
 public class Wire : WireConnectable, IWire
 {
     private WireState state;
-    private WireSettings wireSettings;
+    private IWireSettings wireSettings;
 
-    public override void InitSettings(ElectricObjectSettings settings)
+    public override void InitSettings(IElectricObjectSettings settings)
     {
         base.InitSettings(settings);
-        wireSettings = GetSettings<WireSettings>();
+        wireSettings = GetSettings<IWireSettings>();
         if (wireSettings is null)
-            DebugError($"Wire.InitSettings: Settings '{GetSettings()?.GetType().Name}' is not WireSettings");
+            DebugError($"{GetType().Name}.InitSettings: Settings '{GetSettings()?.GetType().Name}' is not IWireSettings");
     }
 
     public WireState GetState() => state;

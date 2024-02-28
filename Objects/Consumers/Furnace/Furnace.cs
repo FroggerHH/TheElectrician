@@ -1,7 +1,5 @@
-﻿using System.Threading;
-using TheElectrician.Extensions;
-using TheElectrician.Settings;
-using TheElectrician.Systems.PowerFlow;
+﻿using TheElectrician.Settings;
+using TheElectrician.Settings.Interfaces;
 
 namespace TheElectrician.Objects.Consumers.Furnace;
 
@@ -31,7 +29,7 @@ public class Furnace : Storage, IFurnace
 
     public FurnaceRecipe GetCurrentRecipe() => currentRecipe;
 
-    public override void InitSettings(ElectricObjectSettings sett)
+    public override void InitSettings(IElectricObjectSettings sett)
     {
         base.InitSettings(sett);
         furnaceSettings = GetSettings<FurnaceSettings>();
@@ -92,7 +90,6 @@ public class Furnace : Storage, IFurnace
 
         onProgressChanged?.Invoke();
         var powerNeeded = GetPowerNeeded();
-        var currentPower = this.GetPower();
         var consumePowerResult = Remove(Consts.storagePowerKey, powerNeeded);
         if (consumePowerResult)
         {

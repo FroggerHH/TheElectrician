@@ -4,7 +4,6 @@ public interface IPipeConnectable : ILevelable
 {
     UnityEvent onConnectionsChanged { get; }
     int GetMaxConnections();
-    float GetConductivity();
     PipeTransferMode GetTransferMode();
 
     HashSet<IPipeConnectable> GetConnections();

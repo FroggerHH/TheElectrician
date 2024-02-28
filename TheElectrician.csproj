@@ -78,6 +78,9 @@
         <Reference Include="UnityEngine.InputLegacyModule">
             <HintPath>..\..\..\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
         </Reference>
+        <Reference Include="UnityEngine.PhysicsModule">
+          <HintPath>..\..\..\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+        </Reference>
         <Reference Include="UnityEngine.SpriteMaskModule">
           <HintPath>..\..\..\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.SpriteMaskModule.dll</HintPath>
         </Reference>
@@ -96,6 +99,7 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Consts.cs"/>
+        <Compile Include="Extensions\PlayerExtension.cs" />
         <Compile Include="Extensions\StorageExtension.cs" />
         <Compile Include="GlobalUsings.cs" />
         <Compile Include="Helpers\PrefabHelper.cs" />
@@ -141,28 +145,33 @@
         <Compile Include="Patch\HandleObjectsCreation.cs" />
         <Compile Include="Patch\HandleObjectsDeletion.cs" />
         <Compile Include="Patch\LoadWorldEOs.cs" />
+        <Compile Include="Patch\Pipes\ConnectBySnappoints.cs" />
         <Compile Include="Patch\ShowPieceLevel.cs" />
         <Compile Include="PipeTransferMode.cs" />
         <Compile Include="Plugin.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
-        <Compile Include="Settings\ConsumerSettings.cs" />
+        <Compile Include="Settings\Basic\FurnaceSettings.cs" />
+        <Compile Include="Settings\Basic\GeneratorSettings.cs" />
+        <Compile Include="Settings\Basic\ItemPipeSettings.cs" />
+        <Compile Include="Settings\Basic\StorageSettings.cs" />
+        <Compile Include="Settings\Basic\WireSettings.cs" />
         <Compile Include="Settings\ElectricObjectSettings.cs" />
-        <Compile Include="Settings\FurnaceSettings.cs" />
-        <Compile Include="Settings\GeneratorSettings.cs" />
-        <Compile Include="Settings\ItemPipeConnectableSettings.cs" />
-        <Compile Include="Settings\ItemPipeSettings.cs" />
-        <Compile Include="Settings\LevelableSettings.cs" />
-        <Compile Include="Settings\PipeConnectableSettings.cs" />
-        <Compile Include="Settings\StorageSettings.cs" />
-        <Compile Include="Settings\WireConnectableSettings.cs" />
-        <Compile Include="Settings\WireSettings.cs" />
+        <Compile Include="Settings\Interfaces\IElectricObjectSettings.cs" />
+        <Compile Include="Settings\Interfaces\IGeneratorSettings.cs" />
+        <Compile Include="Settings\Interfaces\IItemPipeConnectableSettings.cs" />
+        <Compile Include="Settings\Interfaces\IItemPipeSettings.cs" />
+        <Compile Include="Settings\Interfaces\ILevelableSettings.cs" />
+        <Compile Include="Settings\Interfaces\IPipeConnectableSettings.cs" />
+        <Compile Include="Settings\Interfaces\IStorageSettings.cs" />
+        <Compile Include="Settings\Interfaces\IWireConnectableSettings.cs" />
+        <Compile Include="Settings\Interfaces\IWireSettings.cs" />
         <Compile Include="Systems\Config\TheConfig.cs" />
         <Compile Include="Systems\EOLifeHandler.cs" />
         <Compile Include="Systems\EOPool.cs" />
         <Compile Include="Systems\Library.cs" />
-        <Compile Include="Systems\PowerFlow\PathFinder.cs" />
-        <Compile Include="Systems\PowerFlow\PowerFlow.cs" />
-        <Compile Include="Systems\PowerFlow\PowerSystem.cs" />
+        <Compile Include="Systems\Pipes\PathFinder.cs" />
+        <Compile Include="Systems\Pipes\PowerFlow\PowerFlow.cs" />
+        <Compile Include="Systems\Pipes\PowerFlow\PowerSystem.cs" />
         <Compile Include="Systems\Updater.cs" />
     </ItemGroup>
     <ItemGroup>

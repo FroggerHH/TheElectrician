@@ -1,6 +1,4 @@
-﻿using TheElectrician.Extensions;
-
-namespace TheElectrician.Systems.PowerFlow;
+﻿namespace TheElectrician.Systems.PowerFlow;
 
 public class PowerSystem : IEquatable<PowerSystem>
 {

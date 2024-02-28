@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using TheElectrician.Settings;
+using TheElectrician.Settings.Interfaces;
 using UnityEngine.SceneManagement;
 
 namespace TheElectrician.Patch;
@@ -21,7 +22,7 @@ public static class ShowPieceLevel
         foreach (var piece in pieces)
         {
             if (!Library.IsEO(piece)) continue;
-            var settings = Library.GetSettings(piece.GetPrefabName()) as LevelableSettings;
+            var settings = Library.GetSettings(piece.GetPrefabName()) as ILevelableSettings;
             if (settings == null) continue;
             var level = settings.startLevel;
             piece.m_name = Regex.Replace(piece.m_name, pattern, "");

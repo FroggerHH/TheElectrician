@@ -1,18 +1,19 @@
 ﻿using TheElectrician.Settings;
+using TheElectrician.Settings.Interfaces;
 
 namespace TheElectrician.Systems;
 
 [PublicAPI]
 public static class Library
 {
-    private static readonly Dictionary<int, ElectricObjectSettings> settingsMap = new();
+    private static readonly Dictionary<int, IElectricObjectSettings> settingsMap = new();
 
-    public static void Register(string name, ElectricObjectSettings settings)
+    public static void Register(string name, IElectricObjectSettings settings)
     {
         Register(name.GetStableHashCode(), settings);
     }
 
-    public static void Register(int name, ElectricObjectSettings settings)
+    public static void Register(int name, IElectricObjectSettings settings)
     {
         if (settingsMap.ContainsKey(name))
         {
@@ -24,9 +25,9 @@ public static class Library
         EOPool.Init();
     }
 
-    public static ElectricObjectSettings GetSettings(string name) { return GetSettings(name.GetStableHashCode()); }
+    public static IElectricObjectSettings GetSettings(string name) { return GetSettings(name.GetStableHashCode()); }
 
-    public static ElectricObjectSettings GetSettings(int name)
+    public static IElectricObjectSettings GetSettings(int name)
     {
         if (settingsMap.TryGetValue(name, out var settings))
             return settings;
@@ -48,5 +49,5 @@ public static class Library
     public static IElectricObject GetObject(Guid guid) { return EOLifeHandler.GetObject(guid); }
     public static IElectricObject GetObject(ZDO zdo) { return EOLifeHandler.GetObject(zdo); }
 
-    public static Dictionary<int, ElectricObjectSettings> GetAllSettings() { return settingsMap; }
+    public static Dictionary<int, IElectricObjectSettings> GetAllSettings() { return settingsMap; }
 }

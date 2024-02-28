@@ -1,5 +1,4 @@
-﻿using TheElectrician.Extensions;
-using TheElectrician.Objects.Consumers.Furnace;
+﻿using TheElectrician.Objects.Consumers.Furnace;
 using TheElectrician.Objects.Mono.Helpers;
 using UnityEngine.UI;
 
